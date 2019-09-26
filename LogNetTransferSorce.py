@@ -18,6 +18,10 @@ goal_loss = 1e-3 # goal loss
 valid_size = 0.2
 batch_size = 256
 earlyStop_patience = 8
+model_file_name = 'LogNet_CAD_sim_rand_1e5_Source'
+train_input_file_list = ['CAD_sim_rand_1e5_pos.mat']
+train_output_file_list = ['CAD_sim_rand_1e5_tor.mat']
+
 
 # create Net architecture
 class LogNet(torch.nn.Module):
@@ -36,10 +40,14 @@ class LogNet(torch.nn.Module):
         return y_pred
 
 
-
+input_mat = []
+output_mat = []
 # load .mat data to numpy
-input_mat = sio.loadmat(pjoin('data','Real_MTMR_pos_4096.mat'))['input_mat']
-output_mat = sio.loadmat(pjoin('data','Real_MTMR_tor_4096.mat'))['output_mat']
+for train_input_file, train_output_file in zip(train_input_file_list, train_output_file_list):
+    input = sio.loadmat(pjoin('data',train_input_file))['input_mat']
+    output = sio.loadmat(pjoin('data',train_output_file))['output_mat']
+    input_mat = input if len(input_mat)==0 else np.concatenate((input_mat, input), axis=1)
+    output_mat = output if len(output_mat)==0 else np.concatenate((output_mat, output), axis=1)
 
 # data pre-processing
 input_mat = input_mat.T
@@ -118,31 +126,7 @@ for t in range(max_training_epoch):
 model.load_state_dict(torch.load('checkpoint.pt'))
 
 
-# test model
-# test_input_mat = sio.loadmat(pjoin('data','MTMR_28002_traj_test_10_pos.mat'))['input_mat']
-# test_output_mat = sio.loadmat(pjoin('data','MTMR_28002_traj_test_10_tor.mat'))['output_mat']
-# test_input_mat = test_input_mat.T
-# test_input_mat = test_input_mat[:, :-1]
-# test_input_mat = input_scaler.transform(test_input_mat)
-# test_input_mat = torch.from_numpy(test_input_mat).to(device)
-# test_input_mat = test_input_mat.float()
-# y_pred = model(test_input_mat)
-# test_output_mat_hat = output_scaler.inverse_transform(y_pred.data.numpy())
-# test_output_mat = test_output_mat.T
-# test_output_mat = test_output_mat[:, :-1]
-# e_mat = np.sqrt(np.divide(np.sum(np.square(test_output_mat_hat - test_output_mat), axis=0),
-#                   np.sum(np.square(test_output_mat_hat), axis=0)))
-#
-# print(e_mat)
 
-# model_file_name = './model/LeakReLUFitReal4096'
-#
-# torch.save(model.state_dict(), './model/LeakReLUFitReal4096'+'.pt')
-#
-#
-# with open('model/LeakReLUFitReal4096'+'.pkl', 'wb') as fid:
-#     cPickle.dump(input_scaler, fid)
-#     cPickle.dump(output_scaler, fid)
 
 
 
@@ -165,4 +149,10 @@ plt.grid(True)
 plt.legend()
 plt.tight_layout()
 plt.show()
-fig.savefig('loss_plot.png', bbox_inches='tight')
+
+
+fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
+torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
+with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
+    cPickle.dump(output_scaler, fid)
+
