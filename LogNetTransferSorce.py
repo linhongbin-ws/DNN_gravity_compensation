@@ -98,7 +98,7 @@ avg_valid_losses = []  # to track the average validation loss per epoch as the m
 for t in range(max_training_epoch):
     train_losses = []
     valid_losses = []
-    for label, target in valid_loader:
+    for label, target in train_loader:
         target_hat = model(label)
         loss = loss_fn(target_hat, target)
         optimizer.zero_grad()  # clear gradients for next train

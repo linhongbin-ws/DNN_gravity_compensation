@@ -17,10 +17,10 @@ max_training_epoch = 2000 # maximum training epoch
 goal_loss = 1e-3 # goal loss
 valid_size = 0.2
 batch_size = 256
-earlyStop_patience = 20
+earlyStop_patience = 40
 model_file_name = 'LogNetReal4096'
-train_input_file_list = ['CAD_sim_rand_1e5_pos.mat']
-train_output_file_list = ['CAD_sim_rand_1e5_tor.mat']
+train_input_file_list = ['Real_MTMR_pos_4096.mat','Real_MTMR_pos_4096_reverse.mat']
+train_output_file_list = ['Real_MTMR_tor_4096.mat','Real_MTMR_tor_4096_reverse.mat']
 test_input_file = 'Real_MTMR_pos_319.mat'
 test_output_file = 'Real_MTMR_tor_319.mat'
 train_samples_num =300
@@ -105,7 +105,7 @@ avg_valid_losses = []  # to track the average validation loss per epoch as the m
 for t in range(max_training_epoch):
     train_losses = []
     valid_losses = []
-    for label, target in valid_loader:
+    for label, target in train_loader:
         target_hat = model(label)
         loss = loss_fn(target_hat, target)
         optimizer.zero_grad()  # clear gradients for next train
