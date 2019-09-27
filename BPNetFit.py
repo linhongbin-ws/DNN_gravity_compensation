@@ -7,17 +7,17 @@ import _pickle as cPickle
 from pytorchtools import EarlyStopping
 import torch.utils.data as data
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
+
 
 # global configuration
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-H = 100 # number of hidden neurons
+H = 20  # number of hidden neurons
 learning_rate = 0.01 # learning rate
 max_training_epoch = 2000 # maximum training epoch
 goal_loss = 1e-3 # goal loss
 valid_size = 0.2
 batch_size = 256
-earlyStop_patience = 40
+earlyStop_patience = 20
 model_file_name = 'LogNetReal4096'
 train_input_file_list = ['CAD_sim_rand_1e5_pos.mat']
 train_output_file_list = ['CAD_sim_rand_1e5_tor.mat']
@@ -27,22 +27,16 @@ train_samples_num =300
 
 
 # create Net architecture
-class LogNet(torch.nn.Module):
+class BPNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):
-        super(LogNet, self).__init__()
-        H1 = 100
-        H2 = 50
-        self._relu = torch.nn.ReLU()
-        self._input_linear = torch.nn.Linear(D_in, H1)
-        self._middle_linear = torch.nn.Linear(H1, H)
+        super(BPNet, self).__init__()
+        self._tanh = torch.nn.Tanh()
+        self._input_linear = torch.nn.Linear(D_in, H)
         self._output_linear = torch.nn.Linear(H, D_out)
-        self._epsilon = 1
 
     def forward(self, x):
-        h = self._input_linear(x).clamp(min=self._epsilon)
-        h = torch.log(h)
-        h = self._middle_linear(h)
-        h = torch.exp(h)
+        h = self._input_linear(x)
+        h = self._tanh(h)
         y_pred = self._output_linear(h)
         return y_pred
 
@@ -99,8 +93,8 @@ valid_loader = torch.utils.data.DataLoader(train_dataSet,
                                            num_workers=0)
 
 # configure network and optimizer
-model = LogNet(D_in, H, D_out)
-loss_fn = torch.nn.MSELoss()
+model = BPNet(D_in, H, D_out)
+loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 train_losses = []
