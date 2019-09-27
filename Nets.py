@@ -19,3 +19,17 @@ class LogNet(torch.nn.Module):
         h = torch.exp(h)
         y_pred = self._output_linear(h)
         return y_pred
+
+# create Net architecture
+class BPNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(BPNet, self).__init__()
+        self._tanh = torch.nn.Tanh()
+        self._input_linear = torch.nn.Linear(D_in, H)
+        self._output_linear = torch.nn.Linear(H, D_out)
+
+    def forward(self, x):
+        h = self._input_linear(x)
+        h = self._tanh(h)
+        y_pred = self._output_linear(h)
+        return y_pred

@@ -113,6 +113,7 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     plt.legend()
     plt.tight_layout()
     plt.show()
+    # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
 
     return model
 
