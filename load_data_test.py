@@ -57,15 +57,15 @@ train_size = int(full_dataset.__len__()*train_ratio)
 test_size = full_dataset.__len__() - train_size
 train_dataset, validate_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
 batch_size = 256
-train_loader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=batch_size,
-                                               num_workers=0,
-                                               shuffle=True,
-                                           )
-valid_loader = torch.utils.data.DataLoader(validate_dataset,
-                                           batch_size=batch_size,
-                                            num_workers=0,
-                                           shuffle=True)
+train_loader = DataLoader(train_dataset,
+                        batch_size=batch_size,
+                        num_workers=0,
+                        shuffle=True
+                        )
+valid_loader = DataLoader(validate_dataset,
+                        batch_size=batch_size,
+                        num_workers=0,
+                        shuffle=True)
 
 
 # def load_train_data(train_input_file_list, train_output_file_list,valid_size=0.2,batch_size=128, device='cpu'):
