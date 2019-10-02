@@ -8,11 +8,11 @@ import os
 
 
 class MTMDataset(Dataset):
-    # Initialize your data, download, etc.
+    # Initialize your CAD_sim_1e6, download, etc.
     def __init__(self, data_list, device='cpu'):
         input_mat = []
         output_mat = []
-        # load .mat data to numpy
+        # load .mat CAD_sim_1e6 to numpy
         for file_name in data_list:
             input = sio.loadmat(file_name)['input_mat']
             output = sio.loadmat(file_name)['output_mat']
@@ -25,7 +25,7 @@ class MTMDataset(Dataset):
         # input_mat = input_mat[:, indices[:train_samples_num]]
         # output_mat = output_mat[:, indices[:train_samples_num]]
 
-        # data pre-processing
+        # CAD_sim_1e6 pre-processing
             # scale output to zeroscore
         self.output_scaler = preprocessing.StandardScaler().fit(output_mat)
         output_mat = self.output_scaler.transform(output_mat)
@@ -44,7 +44,7 @@ class MTMDataset(Dataset):
 
 
 data_list = [];
-for root, dirs, files in os.walk(os.path.join("data","data")):
+for root, dirs, files in os.walk(os.path.join("CAD_sim_1e6","CAD_sim_1e6")):
     for file in files:
         if file.endswith(".mat"):
             print(os.path.join(root, file))
@@ -70,10 +70,10 @@ valid_loader = DataLoader(validate_dataset,
 # def load_train_data(train_input_file_list, train_output_file_list,valid_size=0.2,batch_size=128, device='cpu'):
 #     input_mat = []
 #     output_mat = []
-#     # load .mat data to numpy
+#     # load .mat CAD_sim_1e6 to numpy
 #     for train_input_file, train_output_file in zip(train_input_file_list, train_output_file_list):
-#         input = sio.loadmat(pjoin('data',train_input_file))['input_mat']
-#         output = sio.loadmat(pjoin('data',train_output_file))['output_mat']
+#         input = sio.loadmat(pjoin('CAD_sim_1e6',train_input_file))['input_mat']
+#         output = sio.loadmat(pjoin('CAD_sim_1e6',train_output_file))['output_mat']
 #         input_mat = input if len(input_mat)==0 else np.concatenate((input_mat, input), axis=1)
 #         output_mat = output if len(output_mat)==0 else np.concatenate((output_mat, output), axis=1)
 #
@@ -83,7 +83,7 @@ valid_loader = DataLoader(validate_dataset,
 #     # input_mat = input_mat[:, indices[:train_samples_num]]
 #     # output_mat = output_mat[:, indices[:train_samples_num]]
 #
-#     # data pre-processing
+#     # CAD_sim_1e6 pre-processing
 #     input_mat = input_mat.T
 #     output_mat = output_mat.T
 #     input_mat = input_mat[:, :-1]
@@ -107,14 +107,14 @@ valid_loader = DataLoader(validate_dataset,
 #     np.random.shuffle(indices)
 #     split = int(np.floor(valid_size * N_in))
 #     train_idx, valid_idx = indices[split:], indices[:split]
-#     train_sampler = data.sampler.SubsetRandomSampler(train_idx)
-#     valid_sampler = data.sampler.SubsetRandomSampler(valid_idx)
-#     train_dataSet = data.TensorDataset(x, y)
-#     train_loader = torch.utils.data.DataLoader(train_dataSet,
+#     train_sampler = CAD_sim_1e6.sampler.SubsetRandomSampler(train_idx)
+#     valid_sampler = CAD_sim_1e6.sampler.SubsetRandomSampler(valid_idx)
+#     train_dataSet = CAD_sim_1e6.TensorDataset(x, y)
+#     train_loader = torch.utils.CAD_sim_1e6.DataLoader(train_dataSet,
 #                                                batch_size=batch_size,
 #                                                sampler=train_sampler,
 #                                                num_workers=0)
-#     valid_loader = torch.utils.data.DataLoader(train_dataSet,
+#     valid_loader = torch.utils.CAD_sim_1e6.DataLoader(train_dataSet,
 #                                                batch_size=batch_size,
 #                                                sampler=valid_sampler,
 #                                                num_workers=0)

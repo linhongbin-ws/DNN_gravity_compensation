@@ -83,7 +83,7 @@ def add_layer_to_autoencoder(model, trainX, testX):
     print('> reconstruction error train=%.3f, test=%.3f' % (train_mse, test_mse))
 
 
-# prepare data
+# prepare CAD_sim_1e6
 trainX, testX, trainy, testy = prepare_data()
 # get the base autoencoder
 model = base_autoencoder(trainX, testX)

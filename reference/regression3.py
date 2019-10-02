@@ -11,8 +11,8 @@ import imageio
 
 torch.manual_seed(1)  # reproducible
 
-x = torch.unsqueeze(torch.linspace(-10, 10, 1000), dim=1)  # x data (tensor), shape=(100, 1)
-y = torch.sin(x) + 0.2 * torch.rand(x.size())  # noisy y data (tensor), shape=(100, 1)
+x = torch.unsqueeze(torch.linspace(-10, 10, 1000), dim=1)  # x CAD_sim_1e6 (tensor), shape=(100, 1)
+y = torch.sin(x) + 0.2 * torch.rand(x.size())  # noisy y CAD_sim_1e6 (tensor), shape=(100, 1)
 
 # torch can only train on Variable, so convert them to Variable
 x, y = Variable(x), Variable(y)

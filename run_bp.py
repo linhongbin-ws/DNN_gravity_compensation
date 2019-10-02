@@ -1,41 +1,44 @@
 import torch
 import _pickle as cPickle
 from regularizeTool import EarlyStopping
-from trainTool import train, test
+from trainTool import train
 from Net import BPNet
 from loadDataTool import load_train_data
+from os.path import join
+from evaluateTool import test
 
-
+# path
+train_data_path = join("data", "MTMR_real_8192")
+test_data_path = join("data", "MTMR_real_319")
 
 # config hyper-parameters
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 H = 20  # number of hidden neurons
 learning_rate = 0.01 # learning rate
-max_training_epoch = 2000 # maximum training epoch
-goal_loss = 1e-3 # goal loss
-valid_size = 0.2
-batch_size = 256
-earlyStop_patience = 30
-model_file_name = 'BPNetReal4096'
-test_input_file = 'Real_MTMR_pos_319.mat'
-test_output_file = 'Real_MTMR_tor_319.mat'
-train_samples_num =300
+max_training_epoch = 2000 # stop train when reach maximum training epoch
+goal_loss = 1e-3 # stop train when reach goal loss
+valid_ratio = 0.2 # ratio of validation data set over train and validate data
+batch_size = 256 # batch size for mini-batch gradient descent
+earlyStop_patience = 20 # epoch number of looking ahead
 
 
+# load data
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim = load_train_data(data_dir=train_data_path,
+                                                                                                 valid_ratio=valid_ratio,
+                                                                                                 batch_size=batch_size,
+                                                                                                 device=device)
 
 # configure network and optimizer
-model = BPNet(12, H, 6)
+model = BPNet(input_dim, H, output_dim)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 
 
-# load data
-train_loader, valid_loader, output_scaler = load_train_data()
 # train model
 model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch)
 # test model
-# test(model, test_input_file, test_output_file, output_scaler)
+test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, device)
 
 # save model
 # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))

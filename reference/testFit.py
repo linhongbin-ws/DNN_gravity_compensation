@@ -6,8 +6,8 @@ import numpy as np
 import _pickle as cPickle
 from sklearn.metrics import mean_squared_error
 
-input_mat = sio.loadmat(pjoin('data','Real_MTMR_pos_4096.mat'))['input_mat']
-output_mat = sio.loadmat(pjoin('data','Real_MTMR_tor_4096.mat'))['output_mat']
+input_mat = sio.loadmat(pjoin('CAD_sim_1e6','Real_MTMR_pos_4096.mat'))['input_mat']
+output_mat = sio.loadmat(pjoin('CAD_sim_1e6','Real_MTMR_tor_4096.mat'))['output_mat']
 
 device = torch.device('cpu')
 H = 1000
@@ -58,8 +58,8 @@ for t in range(4000):
 
 
 # test model
-test_input_mat = sio.loadmat(pjoin('data','MTMR_28002_traj_test_10_pos.mat'))['input_mat']
-test_output_mat = sio.loadmat(pjoin('data','MTMR_28002_traj_test_10_tor.mat'))['output_mat']
+test_input_mat = sio.loadmat(pjoin('CAD_sim_1e6','MTMR_28002_traj_test_10_pos.mat'))['input_mat']
+test_output_mat = sio.loadmat(pjoin('CAD_sim_1e6','MTMR_28002_traj_test_10_tor.mat'))['output_mat']
 test_input_mat = test_input_mat.T
 test_input_mat = test_input_mat[:, :-1]
 test_input_mat = input_scaler.transform(test_input_mat)

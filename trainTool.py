@@ -1,9 +1,6 @@
 import torch
 import numpy as np
-import torch.utils.data as data
-from os.path import join as pjoin
 from os import remove
-import scipy.io as sio
 import matplotlib.pyplot as plt
 
 
@@ -17,16 +14,16 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     for t in range(max_training_epoch):
         train_losses = []
         valid_losses = []
-        for label, target in train_loader:
-            target_hat = model(label)
+        for feature, target in train_loader:
+            target_hat = model(feature)
             loss = loss_fn(target_hat, target)
             optimizer.zero_grad()  # clear gradients for next train
             loss.backward()  # backpropagation, compute gradients
             optimizer.step()  # apply gradients
             train_losses.append(loss.item())
-        for label, target in valid_loader:
+        for feature, target in valid_loader:
             # forward pass: compute predicted outputs by passing inputs to the model
-            target_hat = model(label)
+            target_hat = model(feature)
             loss = loss_fn(target_hat, target)
             valid_losses.append(loss.item())
 
@@ -63,22 +60,22 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
 
     return model
-
-def test(model, test_input_file, test_output_file, output_scaler, device='cpu'):
-    # test model
-    test_input_mat = sio.loadmat(pjoin('data',test_input_file))['input_mat']
-    test_output_mat = sio.loadmat(pjoin('data',test_output_file))['output_mat']
-    test_input_mat = test_input_mat.T
-    test_input_mat = test_input_mat[:, :-1]
-    test_input_mat = np.concatenate((np.sin(test_input_mat), np.cos(test_input_mat)), axis=1)
-    test_input_mat = torch.from_numpy(test_input_mat).to(device)
-    test_input_mat = test_input_mat.float()
-    y_pred = model(test_input_mat)
-    test_output_mat_hat = output_scaler.inverse_transform(y_pred.data.numpy())
-    test_output_mat = test_output_mat.T
-    test_output_mat = test_output_mat[:, :-1]
-    e_mat = np.sqrt(np.divide(np.sum(np.square(test_output_mat_hat - test_output_mat), axis=0),
-                      np.sum(np.square(test_output_mat), axis=0)))
-    print(e_mat)
-
+#
+# def test(model, test_input_file, test_output_file, output_scaler, device='cpu'):
+#     # test model
+#     test_input_mat = sio.loadmat(pjoin('CAD_sim_1e6',test_input_file))['input_mat']
+#     test_output_mat = sio.loadmat(pjoin('CAD_sim_1e6',test_output_file))['output_mat']
+#     test_input_mat = test_input_mat.T
+#     test_input_mat = test_input_mat[:, :-1]
+#     test_input_mat = np.concatenate((np.sin(test_input_mat), np.cos(test_input_mat)), axis=1)
+#     test_input_mat = torch.from_numpy(test_input_mat).to(device)
+#     test_input_mat = test_input_mat.float()
+#     y_pred = model(test_input_mat)
+#     test_output_mat_hat = output_scaler.inverse_transform(y_pred.data.numpy())
+#     test_output_mat = test_output_mat.T
+#     test_output_mat = test_output_mat[:, :-1]
+#     e_mat = np.sqrt(np.divide(np.sum(np.square(test_output_mat_hat - test_output_mat), axis=0),
+#                       np.sum(np.square(test_output_mat), axis=0)))
+#     print(e_mat)
+#
 
