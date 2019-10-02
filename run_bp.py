@@ -1,11 +1,13 @@
 import torch
 import _pickle as cPickle
 from regularizeTool import EarlyStopping
-from trainTool import load_train_data, train, test
+from trainTool import train, test
 from Net import BPNet
+from loadDataTool import load_train_data
 
 
-# global configuration
+
+# config hyper-parameters
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 H = 20  # number of hidden neurons
 learning_rate = 0.01 # learning rate
@@ -26,10 +28,16 @@ model = BPNet(12, H, 6)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
+
+
+# load data
 train_loader, valid_loader, output_scaler = load_train_data()
+# train model
 model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch)
+# test model
 # test(model, test_input_file, test_output_file, output_scaler)
 
+# save model
 # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
 # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
 #     cPickle.dump(output_scaler, fid)
