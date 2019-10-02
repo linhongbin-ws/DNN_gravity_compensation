@@ -2,7 +2,6 @@ import torch
 import numpy as np
 import torch.utils.data as data
 from sklearn import preprocessing
-from os.path import join as pjoin
 import scipy.io as sio
 from torch.utils.data import Dataset, DataLoader
 import os

@@ -2,9 +2,9 @@ from os.path import join as pjoin
 import scipy.io as sio
 import torch
 import _pickle as cPickle
-from pytorchtools import EarlyStopping
-from train_pytorch import load_train_data, train, test
-from Nets import LogNet
+from regularizeTool import EarlyStopping
+from trainTool import load_train_data, train, test
+from Net import LogNet
 
 
 # global configuration
