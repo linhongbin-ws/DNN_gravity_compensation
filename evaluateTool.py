@@ -2,7 +2,7 @@ import torch
 from loadDataTool import load_data_dir
 import numpy as np
 
-def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cpu'):
+def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cpu', verbose=True):
     # test model
     test_dataset = load_data_dir(test_data_path, device=device, is_scale=False)
     feature = test_dataset.x_data
@@ -18,11 +18,17 @@ def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cp
     test_loss = loss.item()
 
     # inverse scale of estimate target
-    target_hat_mat = output_scaler.inverse_transform(target_norm_hat.numpy())
-    target_mat = target.numpy()
-    rel_rms_vec = np.sqrt(np.divide(np.sum(np.square(target_hat_mat - target_mat), axis=0),
-                      np.sum(np.square(target_mat), axis=0)))
+    with torch.no_grad():
+        target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+        target_mat = target.numpy()
+        rel_rms_vec = np.sqrt(np.divide(np.sum(np.square(target_hat_mat - target_mat), axis=0),
+                          np.sum(np.square(target_mat), axis=0)))
 
-    abs_rms_vec = np.sqrt(np.mean(np.square(target_hat_mat-target_mat)))
+        abs_rms_vec = np.sqrt(np.mean(np.square(target_hat_mat-target_mat), axis=0))
+
+    if verbose:
+        print('Test Loss is ', test_loss)
+        print('Absolute RMS for each joint are:', abs_rms_vec)
+        print('Relative RMS for each joint are:', rel_rms_vec)
 
     return test_loss, abs_rms_vec, rel_rms_vec

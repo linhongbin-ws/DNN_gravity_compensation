@@ -18,7 +18,7 @@ max_training_epoch = 2000 # stop train when reach maximum training epoch
 goal_loss = 1e-3 # stop train when reach goal loss
 valid_ratio = 0.2 # ratio of validation data set over train and validate data
 batch_size = 256 # batch size for mini-batch gradient descent
-earlyStop_patience = 20 # epoch number of looking ahead
+earlyStop_patience = 10 # epoch number of looking ahead
 
 
 # load data
