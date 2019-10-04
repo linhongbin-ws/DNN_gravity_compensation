@@ -21,8 +21,8 @@ def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cp
     with torch.no_grad():
         target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
         target_mat = target.numpy()
-        rel_rms_vec = np.sqrt(np.divide(np.sum(np.square(target_hat_mat - target_mat), axis=0),
-                          np.sum(np.square(target_mat), axis=0)))
+        rel_rms_vec = np.sqrt(np.divide(np.mean(np.square(target_hat_mat - target_mat), axis=0),
+                          np.mean(np.square(target_mat), axis=0)))
 
         abs_rms_vec = np.sqrt(np.mean(np.square(target_hat_mat-target_mat), axis=0))
 
