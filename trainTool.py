@@ -60,22 +60,31 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
 
     return model
-#
-# def test(model, test_input_file, test_output_file, output_scaler, device='cpu'):
-#     # test model
-#     test_input_mat = sio.loadmat(pjoin('CAD_sim_1e6',test_input_file))['input_mat']
-#     test_output_mat = sio.loadmat(pjoin('CAD_sim_1e6',test_output_file))['output_mat']
-#     test_input_mat = test_input_mat.T
-#     test_input_mat = test_input_mat[:, :-1]
-#     test_input_mat = np.concatenate((np.sin(test_input_mat), np.cos(test_input_mat)), axis=1)
-#     test_input_mat = torch.from_numpy(test_input_mat).to(device)
-#     test_input_mat = test_input_mat.float()
-#     y_pred = model(test_input_mat)
-#     test_output_mat_hat = output_scaler.inverse_transform(y_pred.data.numpy())
-#     test_output_mat = test_output_mat.T
-#     test_output_mat = test_output_mat[:, :-1]
-#     e_mat = np.sqrt(np.divide(np.sum(np.square(test_output_mat_hat - test_output_mat), axis=0),
-#                       np.sum(np.square(test_output_mat), axis=0)))
-#     print(e_mat)
-#
+
+
+
+def add_layer_to_autoencoder(base_model, add_layer_model):
+    # n-1 layer
+    layer_list = list(base_model.children())[:-1]
+    # add new layer
+    layer_list.append(add_layer_model)
+    # add output layer
+    layer_list.append(list(base_model.children())[-1])
+
+    new_model = torch.nn.Sequential(*layer_list)
+
+    layer_number = 0
+    for _ in new_model.parameters():
+        layer_number +=1
+
+    # mark all first n-2 layer freeze
+    count = 0
+    for param in new_model.parameters():
+        count +=1
+        if count<=layer_number-2:
+            param.requires_grad = False
+        else:
+            param.requires_grad = True
+
+    return new_model
 

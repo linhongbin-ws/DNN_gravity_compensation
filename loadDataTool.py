@@ -69,3 +69,4 @@ def load_train_data(data_dir, valid_ratio=0.2, batch_size=256, device='cpu'):
                               shuffle=True)
 
     return train_loader, valid_loader, full_dataset.input_scaler, full_dataset.output_scaler, full_dataset.input_dim, full_dataset.output_dim
+
