@@ -1,5 +1,15 @@
 import torch
 
+def Lagrange_Net(model, feature, delta_q, device='cpu'):
+    target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
+    base_hat = model(feature)
+    for j in range(feature.shape[1]):
+        feature_d = feature.clone()
+        feature_d[:, j] = feature_d[:, j].clone() + torch.ones(feature_d[:, j].shape, device=device).float() * delta_q
+        target_hat[:, j] = model(feature_d).squeeze()
+    target_hat = (target_hat - base_hat) / delta_q
+    return target_hat
+
 # create Net architecture
 class LogNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):
