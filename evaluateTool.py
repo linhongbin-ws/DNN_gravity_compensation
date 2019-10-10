@@ -1,7 +1,7 @@
 import torch
 from loadDataTool import load_data_dir
 import numpy as np
-from trainTool import Lagrange_Net
+from Net import Lagrange_Net
 
 def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cpu', verbose=True):
     # test model
@@ -45,7 +45,7 @@ def test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler,
     # scale output data
     target_norm = torch.from_numpy(output_scaler.transform(target.numpy())).to(device).float()
 
-    target_norm_hat = Lagrange_Net(model, feature, delta_q, device='cpu')
+    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, device='cpu')
     loss = loss_fn(target_norm_hat, target_norm)
     test_loss = loss.item()
 

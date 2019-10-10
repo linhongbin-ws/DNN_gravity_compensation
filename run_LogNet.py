@@ -9,16 +9,16 @@ from evaluateTool import test
 
 # path
 train_data_path = join("data", "MTMR_real_8192")
-test_data_path = join("data", "MTMR_real_319")
+test_data_path = join("data", "MTMR_real_10")
 
 # config hyper-parameters
-H = 1000  # number of hidden neurons
+H = 100  # number of hidden neurons
 learning_rate = 0.01 # learning rate
 max_training_epoch = 2000 # stop train when reach maximum training epoch
 goal_loss = 1e-4 # stop train when reach goal loss
 valid_ratio = 0.2 # ratio of validation data set over train and validate data
 batch_size = 256 # batch size for mini-batch gradient descent
-earlyStop_patience = 15 # epoch number of looking ahead
+earlyStop_patience = 8 # epoch number of looking ahead
 
 
 # load data
@@ -30,7 +30,7 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
 
 # configure network and optimizer
 # model = BPNet(input_dim, H, output_dim)
-model = ReLuNet(6, [100, 100], 6)
+model = LogNet(6,H,6)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
