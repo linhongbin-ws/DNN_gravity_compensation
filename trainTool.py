@@ -7,7 +7,7 @@ from regularizeTool import EarlyStopping
 from Net import Lagrange_Net
 
 class AutoEncoder(torch.nn.Module):
-    def __init__(self, linear_param_generator, act_func, device='cpu'):
+    def __init__(self, linear_param_generator, act_func, device):
         super(AutoEncoder, self).__init__()
         self.act_func = act_func
         self.w = next(linear_param_generator)

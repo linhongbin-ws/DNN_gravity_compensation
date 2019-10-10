@@ -6,7 +6,7 @@ from sklearn import preprocessing
 import os
 
 class MTMDataset(Dataset):
-    def __init__(self, data_list, device='cpu', is_scale=True):
+    def __init__(self, data_list, device, is_scale=True):
         input_mat = []
         output_mat = []
         # load .mat file to numpy
@@ -40,7 +40,7 @@ class MTMDataset(Dataset):
     def __len__(self):
         return self.len
 
-def load_data_dir(data_dir, device='cpu', is_scale=True):
+def load_data_dir(data_dir, device, is_scale=True):
     data_list = []
     if not os.path.exists(data_dir):
         raise Exception('cannot find directory: {}'.format(os.getcwd()+data_dir))
@@ -52,7 +52,7 @@ def load_data_dir(data_dir, device='cpu', is_scale=True):
     full_dataset = MTMDataset(data_list, device=device, is_scale=is_scale)
     return full_dataset
 
-def load_train_data(data_dir, valid_ratio=0.2, batch_size=256, device='cpu'):
+def load_train_data(data_dir, valid_ratio, batch_size, device):
     full_dataset = load_data_dir(data_dir, device)
     train_ratio = 1 - valid_ratio
     train_size = int(full_dataset.__len__() * train_ratio)

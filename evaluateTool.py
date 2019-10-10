@@ -3,7 +3,7 @@ from loadDataTool import load_data_dir
 import numpy as np
 from Net import Lagrange_Net
 
-def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device='cpu', verbose=True):
+def test(model, loss_fn, test_data_path, input_scaler, output_scaler, device, verbose=True):
     # test model
     test_dataset = load_data_dir(test_data_path, device=device, is_scale=False)
     feature = test_dataset.x_data
