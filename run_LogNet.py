@@ -23,6 +23,7 @@ earlyStop_patience = 8 # epoch number of looking ahead
 
 # load data
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+print(device)
 train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim = load_train_data(data_dir=train_data_path,
                                                                                                  valid_ratio=valid_ratio,
                                                                                                  batch_size=batch_size,
@@ -30,7 +31,7 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
 
 # configure network and optimizer
 # model = BPNet(input_dim, H, output_dim)
-model = LogNet(6,H,6)
+model = LogNet(6,H,6).to(device)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
@@ -39,7 +40,8 @@ early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 # train model
 model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch)
 # test model
-test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, device)
+model = model.to('cpu')
+test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
 
 # save model
 # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
