@@ -5,11 +5,12 @@ from trainTool import train
 from Net import *
 from loadDataTool import load_train_data
 from os.path import join
-from evaluateTool import test
+from evaluateTool import *
+import scipy.io as sio
 
 # path
-train_data_path = join("data", "MTMR_real_8192")
-test_data_path = join("data", "MTMR_real_319")
+train_data_path = join("data", "acrobot_sim_64")
+test_data_path = join("data", "acrobot_sim_1156")
 
 # config hyper-parameters
 H = 1000  # number of hidden neurons
@@ -30,7 +31,7 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
                                                                                                  device=device)
 # configure network and optimizer
 # model = BPNet(input_dim, H, output_dim)
-model = ReLuNet(6, [100, 100], 6).to(device)
+model = ReLuNet(2, [100, 100], 2).to(device)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
@@ -40,8 +41,11 @@ early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch)
 # test model
 model = model.to('cpu')
-test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
-
+test_dataset = load_data_dir(test_data_path, device='cpu', is_scale=False)
+feature = test_dataset.x_data
+target_hat_mat = predict(model, feature, input_scaler, output_scaler, 'cpu')
+print(target_hat_mat)
+sio.savemat(join(train_data_path,'predict.mat'), {'input_mat': feature.numpy(),'output_hat_mat':target_hat_mat})
 # save model
 # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
 # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
