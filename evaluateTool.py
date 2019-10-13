@@ -38,8 +38,15 @@ def predict(model, input_mat, input_scaler, output_scaler, device):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to(device).float()
     target_norm_hat = model(feature_norm)
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+    target_hat = torch.from_numpy(target_hat_mat)
+    return target_hat
 
-    return target_hat_mat
+def predict_lagrangian(model, input_mat, input_scaler, output_scaler,delta_q):
+    feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
+    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, device='cpu')
+    target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+    target_hat = torch.from_numpy(target_hat_mat)
+    return target_hat
 
 def test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q, device='cpu', verbose=True):
     # test model
