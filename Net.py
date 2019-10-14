@@ -59,3 +59,16 @@ class ReLuNet(torch.nn.Module):
             x = self.relu(x)
         x = self.output_layer(x)
         return x
+
+class SinNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(SinNet, self).__init__()
+        self._input_linear = torch.nn.Linear(D_in, H)
+        self._middle_linear = torch.nn.Linear(H, H)
+        self._output_linear = torch.nn.Linear(H, D_out)
+
+    def forward(self, x):
+        h = self._input_linear(x)
+        h = torch.sin(h)
+        y_pred = self._output_linear(h)
+        return y_pred
