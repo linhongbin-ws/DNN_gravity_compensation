@@ -1,4 +1,4 @@
-jnt_sample_num = 8;
+jnt_sample_num = 34;
 jnt_range = linspace(-pi,pi,jnt_sample_num);
 [X, Y] = meshgrid(jnt_range);
 Z1 = zeros(size(X));
@@ -17,4 +17,4 @@ for i = 1:size(X,1)
 end
 
 input_mat = [X(:), Y(:)];
-output_mat = [Z1_noise(:), Z1_noise(:)];
+output_mat = [Z1_noise(:), Z2_noise(:)];

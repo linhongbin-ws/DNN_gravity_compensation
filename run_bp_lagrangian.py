@@ -8,8 +8,8 @@ from os.path import join
 from evaluateTool import test_lagrangian
 
 # path
-train_data_path = join("data", "MTMR_real_8192")
-test_data_path = join("data", "MTMR_real_319")
+train_data_path = join("data", "acrobot_sim_64")
+test_data_path = join("data", "acrobot_sim_1156")
 
 # config hyper-parameters
 H = 5000  # number of hidden neurons
@@ -29,7 +29,7 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
                                                                                                  device=device)
 
 # configure network and optimizer
-model = ReLuNet(6, [100, 80, 40], 1)
+model = ReLuNet(2, [100, 80, 40], 1)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)

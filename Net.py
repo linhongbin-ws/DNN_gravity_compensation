@@ -24,7 +24,7 @@ class LogNet(torch.nn.Module):
         self._epsilon = 1
 
     def forward(self, x):
-        h = torch.sin(x)
+        h = x
         h = self._input_linear(h).clamp(self._epsilon)
         h = torch.log(h)
         h = self._middle_linear(h)
