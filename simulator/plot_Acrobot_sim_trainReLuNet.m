@@ -25,7 +25,7 @@ function plot_result(joint_index, train_input_mat, train_output_mat, test_input_
     yticks(ticks);
     % ticks = [min(Z1,[],'all'), 0, max(Z1,[],'all')];
     % zticks(ticks)
-    title(sprintf('Train data and ReLu Net predict surface for Joint %d of Acrobot', joint_index))
-    legend([surfplot, scatterplot], {'ReLu Net predict surface', 'Train data'});
+%     title(sprintf('Train data and ReLu Net predict surface for Joint %d of Acrobot', joint_index))
+    legend([surfplot, scatterplot], {'predict surface', 'Training data'});
 
 end

@@ -1,4 +1,4 @@
-jnt_sample_num = 8;
+jnt_sample_num = 34;
 fntsize = 20;
 jnt_range = linspace(-pi,pi,jnt_sample_num);
 [X, Y] = meshgrid(jnt_range);

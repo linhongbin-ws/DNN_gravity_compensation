@@ -1,4 +1,4 @@
-function G = Acrobot_simulator(q1, q2, is_noise)
+function G = Acrobot_gravity(q1, q2, is_noise)
     l1  = 1;
     l2  = 2;
     lc1 = 0.5; % COM of link 1

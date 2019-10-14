@@ -1,4 +1,4 @@
-jnt_sample_num = 34;
+jnt_sample_num = 15;
 jnt_range = linspace(-pi,pi,jnt_sample_num);
 [X, Y] = meshgrid(jnt_range);
 Z1 = zeros(size(X));
