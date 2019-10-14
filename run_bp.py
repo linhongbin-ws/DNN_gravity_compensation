@@ -30,7 +30,8 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
                                                                                                  device=device)
 # configure network and optimizer
 # model = BPNet(input_dim, H, output_dim)
-model = ReLuNet(6, [100, 100], 6).to(device)
+model = SinNet(6,100,6).to(device)
+#model = ReLuNet(6, [100, 100], 6).to(device)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
