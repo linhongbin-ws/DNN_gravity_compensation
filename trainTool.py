@@ -23,7 +23,7 @@ class AutoEncoder(torch.nn.Module):
         return h
 
 
-def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch):
+def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=True):
     train_losses = []
     valid_losses = []  # to track the validation loss as the model trains
     avg_train_losses = []  # to track the average training loss per epoch as the model trains
@@ -59,28 +59,29 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     remove('checkpoint.pt')
 
     # plot
-    fig = plt.figure(figsize=(10, 8))
-    plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
-    plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
+    if is_plot:
+        fig = plt.figure(figsize=(10, 8))
+        plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
+        plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
 
-    # find position of lowest validation loss
-    minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
-    plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
+        # find position of lowest validation loss
+        minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
+        plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
 
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
-    plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-    # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
+        plt.xlabel('epochs')
+        plt.ylabel('loss')
+        plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
+        plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
 
     return model
 
 
-def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q):
+def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q, is_plot=True):
     train_losses = []
     valid_losses = []  # to track the validation loss as the model trains
     avg_train_losses = []  # to track the average training loss per epoch as the model trains
@@ -115,23 +116,24 @@ def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, earl
     remove('checkpoint.pt')
 
     # plot
-    fig = plt.figure(figsize=(10, 8))
-    plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
-    plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
+    if is_plot:
+        fig = plt.figure(figsize=(10, 8))
+        plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
+        plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
 
-    # find position of lowest validation loss
-    minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
-    plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
+        # find position of lowest validation loss
+        minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
+        plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
 
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
-    plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-    # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
+        plt.xlabel('epochs')
+        plt.ylabel('loss')
+        plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
+        plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
 
     return model
 
