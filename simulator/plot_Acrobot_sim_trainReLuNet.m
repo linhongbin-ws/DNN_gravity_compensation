@@ -1,4 +1,7 @@
-load('../figure/bp_train_8/result.mat')
+%load('ReLuNet.mat')
+%load('SigmoidNet.mat')
+load('SinNet.mat')
+%load('Lagrangian_SinNet.mat')
 plot_result(1, train_input_mat, train_output_mat, test_input_mat, test_output_mat)
 plot_result(2, train_input_mat, train_output_mat, test_input_mat, test_output_mat)
 function plot_result(joint_index, train_input_mat, train_output_mat, test_input_mat, test_output_mat)

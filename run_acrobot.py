@@ -29,26 +29,31 @@ def loop_func(train_file, use_net):
     elif use_net == 'SigmoidNet':
         model = SigmoidNet(2, 100, 2).to(device)
     elif use_net == 'Lagrangian_SinNet':
-        model = SinNet(2, 200, 1).to(device)
-        delta_q = 1e-5
+        model = SinNet(2, 30, 1).to(device)
+        delta_q = 1e-1
     else:
         raise Exception(use_net + 'is not support')
 
+    if use_net == 'Lagrangian_SinNet':
+        earlyStop_patience = 80
+        learning_rate = 0.1
+    else:
+        earlyStop_patience = 30
+        learning_rate = 0.1
 
     #model = LogNet(2,100,2).to(device)
 
     # config hyper-parameters
-    H = 1000  # number of hidden neurons
-    learning_rate = 0.01 # learning rate
     max_training_epoch = 2000 # stop train when reach maximum training epoch
     goal_loss = 1e-4 # stop train when reach goal loss
     valid_ratio = 0.2 # ratio of validation data set over train and validate data
     batch_size = 256 # batch size for mini-batch gradient descent
-    earlyStop_patience = 15 # epoch number of looking ahead
+
 
 
     # load data
     print(device)
+    print('FitNet:'+ use_net)
     train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim = load_train_data(data_dir=join(train_data_path, "data"),
                                                                                                      valid_ratio=valid_ratio,
                                                                                                      batch_size=batch_size,
