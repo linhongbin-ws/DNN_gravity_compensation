@@ -9,16 +9,15 @@ from evaluateTool import *
 import scipy.io as sio
 
 # path
-train_data_path = join("data", "acrobot_sim_25")
-test_data_path = join("data", "acrobot_sim_1156")
+train_data_path = join("data", "acrobot_sim_225_std5")
+test_data_path = join("data", "acrobot_sim_1156_std5")
 save_result_path = join("figure","bp_train_8")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# model = ReLuNet(2, [100, 100], 2).to(device)
-model = ReLuNet(2, [100, 80, 40], 1).to(device)
-
+#model = ReLuNet(2, [100, 80, 40], 1).to(device)
+model = SigmoidNet(2,100,1).to(device)
 # config hyper-parameters
 H = 1000  # number of hidden neurons
-learning_rate = 0.01 # learning rate
+learning_rate = 0.005 # learning rate
 max_training_epoch = 2000 # stop train when reach maximum training epoch
 goal_loss = 1e-4 # stop train when reach goal loss
 valid_ratio = 0.2 # ratio of validation data set over train and validate data

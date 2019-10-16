@@ -1,4 +1,0 @@
-load('../figure/bp_train_8/result.mat')
-for i=1:size(input_mat,1)
-    
-end

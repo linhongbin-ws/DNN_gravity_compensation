@@ -72,3 +72,16 @@ class SinNet(torch.nn.Module):
         h = torch.sin(h)
         y_pred = self._output_linear(h)
         return y_pred
+
+
+class SigmoidNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(SigmoidNet, self).__init__()
+        self._input_linear = torch.nn.Linear(D_in, H)
+        self._output_linear = torch.nn.Linear(H, D_out)
+
+    def forward(self, x):
+        h = self._input_linear(x)
+        h = torch.sigmoid(h)
+        y_pred = self._output_linear(h)
+        return y_pred

@@ -9,8 +9,8 @@ from evaluateTool import *
 import scipy.io as sio
 
 # path
-train_data_path = join("data", "acrobot_sim_64")
-test_data_path = join("data", "acrobot_sim_1156")
+train_data_path = join("data", "acrobot_sim_225_std5")
+test_data_path = join("data", "acrobot_sim_1156_std5")
 save_result_path = join("figure","bp_train_8")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #model = ReLuNet(2, [100, 100], 2).to(device)

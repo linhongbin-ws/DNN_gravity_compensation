@@ -8,18 +8,18 @@ from os.path import join
 from evaluateTool import test_lagrangian
 
 # path
-train_data_path = join("data", "acrobot_sim_64")
-test_data_path = join("data", "acrobot_sim_1156")
+train_data_path = join("data", "MTMR_real_8192")
+test_data_path = join("data", "MTMR_real_319")
 
 # config hyper-parameters
 H = 5000  # number of hidden neurons
-learning_rate = 0.0002 # learning rate
+learning_rate = 0.01 # learning rate
 max_training_epoch = 2000 # stop train when reach maximum training epoch
 goal_loss = 1e-4 # stop train when reach goal loss
 valid_ratio = 0.2 # ratio of validation data set over train and validate data
-batch_size = 1024 # batch size for mini-batch gradient descent
+batch_size = 256 # batch size for mini-batch gradient descent
 earlyStop_patience = 50 # epoch number of looking ahead
-delta_q = 1e-2
+delta_q = 1e-5
 
 # load data
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -29,7 +29,7 @@ train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim =
                                                                                                  device=device)
 
 # configure network and optimizer
-model = ReLuNet(2, [100, 80, 40], 1)
+model = SinNet(6,50,1).to(device)
 loss_fn = torch.nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)

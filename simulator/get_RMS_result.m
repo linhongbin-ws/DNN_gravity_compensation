@@ -3,7 +3,7 @@ target_mat = [];
 for i=1:size(test_input_mat,1)
     q1 = input_mat(i,1);
     q2 = input_mat(i,2);
-    G = Acrobot_gravity(q1, q2, false);
+    G = Acrobot_gravity(q1, q2, 0, 0);
     target_mat = [target_mat;G.'];
 end
 
