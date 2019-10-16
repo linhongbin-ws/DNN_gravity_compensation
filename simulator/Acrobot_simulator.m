@@ -1,4 +1,4 @@
-jnt_sample_num = 8;
+jnt_sample_num = 34;
 std = 9;
 jnt_range = linspace(-pi,pi,jnt_sample_num);
 [X, Y] = meshgrid(jnt_range);
@@ -14,3 +14,6 @@ end
 
 input_mat = [X(:), Y(:)];
 output_mat = [Z1_noise(:), Z2_noise(:)];
+
+mkdir(sprintf('N%d_std%d/data', jnt_sample_num, std))
+save(sprintf('N%d_std%d/data/N%d_std%d.mat', jnt_sample_num, std,jnt_sample_num, std),'input_mat','output_mat')
