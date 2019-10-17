@@ -8,7 +8,7 @@ from os.path import join
 from evaluateTool import test
 
 # path
-train_data_path = join("data", "MTMR_real_8192")
+train_data_path = join("data", "MTMR_28002", 'D5N5_POS')
 test_data_path = join("data", "MTMR_real_319")
 
 # config hyper-parameters
