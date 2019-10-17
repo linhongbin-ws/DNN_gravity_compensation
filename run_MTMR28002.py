@@ -13,8 +13,8 @@ from os import mkdir
 
 
 def loop_func(train_file, use_net):
-    train_data_path = join("data", "Acrobot", "sim", train_file)
-    test_data_path = join("data", "Acrobot", "sim", "N34_std1")
+    train_data_path = join("data", "MTMR_28002", 'D5N5_POS', 'D5', 'train')
+    test_data_path = join("data", "MTMR_28002", 'D5N5_POS', 'D5', 'test')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     #use_net = 'SinNet'
@@ -23,14 +23,14 @@ def loop_func(train_file, use_net):
     # use_net = 'Lagrangian_SinNet'
 
     if use_net == 'SinNet':
-        model = SinNet(2, 100, 2).to(device)
+        model = SinNet(5, 100, 5).to(device)
     elif use_net == 'ReLuNet':
-        model = ReLuNet(2, [100], 2).to(device)
+        model = ReLuNet(5, [100], 5).to(device)
     elif use_net == 'SigmoidNet':
-        model = SigmoidNet(2, 100, 2).to(device)
+        model = SigmoidNet(5, 100, 5).to(device)
     elif use_net == 'Lagrangian_SinNet':
-        model = SinNet(2, 30, 1).to(device)
-        delta_q = 1e-1
+        model = SinNet(5, 100, 1).to(device)
+        delta_q = 1e-2
     else:
         raise Exception(use_net + 'is not support')
 
@@ -77,34 +77,37 @@ def loop_func(train_file, use_net):
     test_dataset = load_data_dir(join(test_data_path,"data"), device='cpu', is_scale=False)
     test_input_mat = test_dataset.x_data
     if use_net=='Lagrangian_SinNet':
-        test_output_mat = predict_lagrangian(model, test_input_mat, input_scaler, output_scaler, delta_q)
+        test_loss, abs_rms_vec, rel_rms_vec = test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q=delta_q, device=device)
     else:
-        test_output_mat = predict(model, test_input_mat, input_scaler, output_scaler, 'cpu')
+        test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
 
 
-    print(test_output_mat)
+    #print(test_output_mat)
 
     train_dataset = load_data_dir(join(train_data_path,'data'), device='cpu', is_scale=False)
     train_input_mat = train_dataset.x_data
     train_output_mat = train_dataset.y_data
 
-    try:
-        mkdir(join(train_data_path,"result"))
-    except:
-        print(join(train_data_path,"result") + " already exist")
+    # try:
+    #     mkdir(join(train_data_path,"result"))
+    # except:
+    #     print(join(train_data_path,"result") + " already exist")
+    #
+    # sio.savemat(join(train_data_path, "result", use_net+'.mat'), {'test_input_mat': test_input_mat.numpy(),
+    #                                                   'test_output_mat': test_output_mat.numpy(),
+    #                                                   'train_input_mat': train_input_mat.numpy(),
+    #                                                   'train_output_mat': train_output_mat.numpy()})
 
-    sio.savemat(join(train_data_path, "result", use_net+'.mat'), {'test_input_mat': test_input_mat.numpy(),
-                                                      'test_output_mat': test_output_mat.numpy(),
-                                                      'train_input_mat': train_input_mat.numpy(),
-                                                      'train_output_mat': train_output_mat.numpy()})
     # save model
     # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
     # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
     #     cPickle.dump(output_scaler, fid)
 
-train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
-use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Lagrangian_SinNet']
+# train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
+# use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Lagrangian_SinNet']
+#
+# for train_file in train_file_list:
+#     for use_net in use_net_list:
+#         loop_func(train_file, use_net)
 
-for train_file in train_file_list:
-    for use_net in use_net_list:
-        loop_func(train_file, use_net)
+loop_func('a', 'SinNet')

@@ -16,7 +16,7 @@ function train_model(N, std)
         q1 = input_mat(i,1);
         q2 = input_mat(i,2);
         tau_vec = [tau_vec;output_mat(i,1);output_mat(i,2)];
-        R_mat = [R_mat;Regressor(q1,q2)];
+        R_mat = [R_mat;analytical_regressor_pos_mat(9.81, q2,q3,q4,q5,q6)];
     end
 
      beta_vec = pinv(R_mat)*tau_vec;
