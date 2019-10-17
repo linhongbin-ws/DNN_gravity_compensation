@@ -6,7 +6,7 @@ coupling_upper_limit = [41];
 coupling_lower_limit = [-11];
 
 % pivot points of each joint
-joint_pivot_num_list = [4,4,4, 4,4,4];
+joint_pivot_num_list = [1,4,4, 4,4,4];
 
 % margin to the joint limit
 joint_lim_margin_list = [4, 5, 5, 5, 5, 5];
