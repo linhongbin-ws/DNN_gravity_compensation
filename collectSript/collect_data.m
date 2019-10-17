@@ -2,11 +2,11 @@
 input_mat = deg2rad(input_mat);
 ready_input_mat_pos = deg2rad(ready_input_mat_pos);
 
-teady_time = 5;
 mtm_arm = mtm('MTMR')
 desired_effort = [];
 current_position = [];
 
+ready_input_mat_pos(7,:) = 0.0;
 input_mat(7,:) = 0.0;
 sample_num = 10;
 steady_time = 0.3;
@@ -14,15 +14,16 @@ steady_time = 0.3;
 tic 
 for k= 1:size(input_mat,2)
     mtm_arm.move_joint(ready_input_mat_pos(:,k));
-    pause(0.2);
+    pause(0.1);
     mtm_arm.move_joint(input_mat(:,k));
+    pause(steady_time);
     for j=1:sample_num
         pause(0.01); % pause 10ms assuming dVRK console publishes at about 100Hz so we get different samples
         [~, ~, desired_effort(:,k,j)] = mtm_arm.get_state_joint_desired();
         [current_position(:,k,j), ~, ~] = mtm_arm.get_state_joint_current();
     end
     duration = toc;
-    fprintf('(%d/%d), predict time: %s seconds left\n', k,size(config_mat,2), datestr(seconds(duration*(size(config_mat,2)-k)/k),'HH:MM:SS'))
+    %fprintf('(%d/%d), predict time: %s seconds left\n', k,size(config_mat,2), datestr(seconds(duration*(size(config_mat,2)-k)/k),'HH:MM:SS'))
 end
 
 duration = toc;
