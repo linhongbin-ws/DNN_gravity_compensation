@@ -13,8 +13,8 @@ from os import mkdir
 
 
 def loop_func(train_file, use_net):
-    train_data_path = join("data", "MTMR_28002", 'D5N5_POS', 'D5', 'train')
-    test_data_path = join("data", "MTMR_28002", 'D5N5_POS', 'D5', 'test')
+    train_data_path = join("data", "MTMR_28002", 'uniform', 'D5N5')
+    test_data_path = join("data", "MTMR_28002", 'random', 'D6N10')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     #use_net = 'SinNet'
