@@ -81,7 +81,7 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
     return model
 
 
-def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q, is_plot=True):
+def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q, w_vec, is_plot=True):
     train_losses = []
     valid_losses = []  # to track the validation loss as the model trains
     avg_train_losses = []  # to track the average training loss per epoch as the model trains
@@ -90,7 +90,7 @@ def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, earl
         train_losses = []
         valid_losses = []
         for feature, target in train_loader:
-            target_hat = Lagrange_Net(model, feature, delta_q, device='cpu')
+            target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
             loss = loss_fn(target_hat, target)
             optimizer.zero_grad()  # clear gradients for next train
             loss.backward()  # backpropagation, compute gradients
@@ -98,7 +98,7 @@ def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, earl
             train_losses.append(loss.item())
         for feature, target in valid_loader:
             # forward pass: compute predicted outputs by passing inputs to the model
-            target_hat = Lagrange_Net(model, feature, delta_q, device='cpu')
+            target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
             loss = loss_fn(target_hat, target)
             valid_losses.append(loss.item())
 

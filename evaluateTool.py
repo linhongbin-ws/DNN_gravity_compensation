@@ -41,14 +41,14 @@ def predict(model, input_mat, input_scaler, output_scaler, device):
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
 
-def predict_lagrangian(model, input_mat, input_scaler, output_scaler,delta_q):
+def predict_lagrangian(model, input_mat, input_scaler, output_scaler,delta_q,w_vec):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
-    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, device='cpu')
+    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
 
-def test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q, device='cpu', verbose=True):
+def test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q, w_vec, device='cpu', verbose=True):
     # test model
     test_dataset = load_data_dir(test_data_path, device=device, is_scale=False)
     feature = test_dataset.x_data
@@ -59,7 +59,7 @@ def test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler,
     # scale output data
     target_norm = torch.from_numpy(output_scaler.transform(target.numpy())).to(device).float()
 
-    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, device='cpu')
+    target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
     loss = loss_fn(target_norm_hat, target_norm)
     test_loss = loss.item()
 

@@ -8,13 +8,14 @@ from os.path import join
 from evaluateTool import *
 import scipy.io as sio
 from os import mkdir
+import numpy as np
 
 # path
 
 
 def loop_func(train_file, use_net):
-    train_data_path = join("data", "MTMR_28002", 'uniform', 'D5N5')
-    test_data_path = join("data", "MTMR_28002", 'random', 'D6N10')
+    train_data_path = join("data", "MTMR_28002",'real', 'uniform', 'D5N5')
+    test_data_path = join("data", "MTMR_28002", 'real', 'random', 'D5N319')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     #use_net = 'SinNet'
@@ -31,6 +32,8 @@ def loop_func(train_file, use_net):
     elif use_net == 'Lagrangian_SinNet':
         model = SinNet(5, 100, 1).to(device)
         delta_q = 1e-2
+        w_list = [1,1,0.2,0.2,0.2]
+        w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
     else:
         raise Exception(use_net + 'is not support')
 
@@ -69,7 +72,7 @@ def loop_func(train_file, use_net):
     # train model
     if use_net=='Lagrangian_SinNet':
         model = train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch,
-                                 delta_q=delta_q, is_plot=False)
+                                 delta_q=delta_q, w_vec=w_vec, is_plot=False)
     else:
         model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
     # test model
@@ -77,7 +80,7 @@ def loop_func(train_file, use_net):
     test_dataset = load_data_dir(join(test_data_path,"data"), device='cpu', is_scale=False)
     test_input_mat = test_dataset.x_data
     if use_net=='Lagrangian_SinNet':
-        test_loss, abs_rms_vec, rel_rms_vec = test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q=delta_q, device=device)
+        test_loss, abs_rms_vec, rel_rms_vec = test_lagrangian(model, loss_fn, test_data_path, input_scaler, output_scaler, delta_q=delta_q, w_vec=w_vec,  device=device)
     else:
         test_loss, abs_rms_vec, rel_rms_vec = test(model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
 
@@ -110,4 +113,4 @@ def loop_func(train_file, use_net):
 #     for use_net in use_net_list:
 #         loop_func(train_file, use_net)
 
-loop_func('a', 'SinNet')
+loop_func('a', 'Lagrangian_SinNet')

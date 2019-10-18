@@ -1,6 +1,6 @@
 import torch
 
-def Lagrange_Net(model, feature, delta_q, device='cpu'):
+def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
     target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
     base_hat = model(feature)
     base_hat.require_grad = False
@@ -9,6 +9,7 @@ def Lagrange_Net(model, feature, delta_q, device='cpu'):
         feature_d[:, j] = feature_d[:, j].clone() + torch.ones(feature_d[:, j].shape, device=device).float() * delta_q
         target_hat[:, j] = model(feature_d).squeeze()-base_hat.squeeze()
     target_hat = target_hat / delta_q
+    target_hat = torch.mul(target_hat, w_vec)
     return target_hat
 
 # create Net architecture
