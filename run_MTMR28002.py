@@ -1,4 +1,3 @@
-import _pickle as cPickle
 from regularizeTool import EarlyStopping
 from trainTool import train, train_lagrangian
 from Net import *
@@ -8,6 +7,11 @@ from evaluateTool import *
 import scipy.io as sio
 import numpy as np
 from os import path, mkdir
+import sys
+if sys.version_info[0] < 3:
+    import cPickle
+else:
+    import _pickle as cPickle
 # path
 
 
@@ -114,7 +118,7 @@ def loop_func(train_file, use_net):
     save_path = join(train_data_path, 'model')
     if not path.isdir(save_path):
         mkdir(save_path)
-    torch.save(model, join(save_path, use_net+'.pt'))
+    torch.save(model.state_dict(), join(save_path, use_net+'.pt'))
     with open(join(save_path, use_net+'.pkl'), 'wb') as fid:
         cPickle.dump(input_scaler, fid)
         cPickle.dump(output_scaler, fid)
@@ -122,4 +126,4 @@ def loop_func(train_file, use_net):
             cPickle.dump(delta_q, fid)
             cPickle.dump(w_vec, fid)
 
-loop_func('a', 'Lagrangian_SinNet')
+loop_func('a', 'SinNet')
