@@ -105,6 +105,8 @@ def loop_func(train_file, use_net):
 train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
 use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Lagrangian_SinNet']
 
-for train_file in train_file_list:
-    for use_net in use_net_list:
-        loop_func(train_file, use_net)
+# for train_file in train_file_list:
+#     for use_net in use_net_list:
+#         loop_func(train_file, use_net)
+
+loop_func('N8_std1','PolNet')

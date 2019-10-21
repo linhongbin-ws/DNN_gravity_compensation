@@ -1,5 +1,18 @@
 import torch
 
+class PolNet(torch.nn.Module):
+    def __init__(self, pol_dim, device='cpu'):
+        super(PolNet, self).__init__()
+        self.pol_dim = pol_dim
+        self.device = device
+        self.output_linear = torch.nn.Linear(pol_dim, 1)
+    def forward(self, x):
+        feature = torch.zeros([x.shape[0], self.pol_dim], dtype=torch.float32, device=self.device)
+        for i in range(self.pol_dim):
+            feature[:,i] = x.pow(i+1).squeeze()
+        y_pred = self.output_linear(feature)
+        return y_pred
+
 def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
     target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
     base_hat = model(feature)
