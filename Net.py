@@ -25,6 +25,12 @@ def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
     target_hat = torch.mul(target_hat, w_vec)
     return target_hat
 
+def PolyNN(base_model, polyNet_list, feature):
+    out = base_model(feature)
+    for i in range(out.shape[1]):
+        polyModel = polyNet_list[i]
+        out[:,i] = out[:,i] + polyModel(feature).squeeze()
+
 # create Net architecture
 class LogNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):

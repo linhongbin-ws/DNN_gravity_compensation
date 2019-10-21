@@ -1,7 +1,7 @@
 import torch
 import _pickle as cPickle
 from regularizeTool import EarlyStopping
-from trainTool import train, train_lagrangian
+from trainTool import train
 from Net import *
 from loadDataTool import load_train_data
 from os.path import join
@@ -31,6 +31,8 @@ def loop_func(train_file, use_net):
     elif use_net == 'Lagrangian_SinNet':
         model = SinNet(2, 30, 1).to(device)
         delta_q = 1e-1
+        w_list = [1,1]
+        w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
     else:
         raise Exception(use_net + 'is not support')
 
@@ -68,18 +70,19 @@ def loop_func(train_file, use_net):
 
     # train model
     if use_net=='Lagrangian_SinNet':
-        model = train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch,
-                                 delta_q=delta_q, is_plot=False)
+        model = train('Lagrangian', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch,
+                                 delta_q=delta_q, w_vec=w_vec, is_plot=False)
     else:
-        model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
+        model = train('Base', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
+
     # test model
     model = model.to('cpu')
     test_dataset = load_data_dir(join(test_data_path,"data"), device='cpu', is_scale=False)
     test_input_mat = test_dataset.x_data
     if use_net=='Lagrangian_SinNet':
-        test_output_mat = predict_lagrangian(model, test_input_mat, input_scaler, output_scaler, delta_q)
+        test_output_mat = predict('Lagrangian',model, test_input_mat, input_scaler, output_scaler, delta_q, w_vec)
     else:
-        test_output_mat = predict(model, test_input_mat, input_scaler, output_scaler, 'cpu')
+        test_output_mat = predict('Base', model, test_input_mat, input_scaler, output_scaler, 'cpu')
 
 
     print(test_output_mat)
@@ -109,4 +112,4 @@ use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Lagrangian_SinNet']
 #     for use_net in use_net_list:
 #         loop_func(train_file, use_net)
 
-loop_func('N8_std1','PolNet')
+loop_func('N8_std1','Lagrangian_SinNet')
