@@ -13,8 +13,12 @@ from os import mkdir
 
 
 def loop_func(train_file, use_net):
-    train_data_path = join("data", "Acrobot", "sim", train_file)
-    test_data_path = join("data", "Acrobot", "sim", "N34_std1")
+    # train_data_path = join("data", "Acrobot", "sim", train_file)
+    # test_data_path = join("data", "Acrobot", "sim", "N34_std1")
+
+    train_data_path = join("data", "MTMR_28002",'real', 'uniform', 'D5N5','pos')
+    test_data_path = join("data", "MTMR_28002", 'real', 'random', 'D5N10')
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     #use_net = 'SinNet'
@@ -22,20 +26,21 @@ def loop_func(train_file, use_net):
     #use_net = 'SigmoidNet'
     # use_net = 'Lagrangian_SinNet'
 
+    D = 5
     if use_net == 'SinNet':
-        model = SinNet(2, 100, 2).to(device)
+        model = SinNet(D, 100, D).to(device)
     elif use_net == 'ReLuNet':
-        model = ReLuNet(2, [100], 2).to(device)
+        model = ReLuNet(D, [100], D).to(device)
     elif use_net == 'SigmoidNet':
-        model = SigmoidNet(2, 100, 2).to(device)
+        model = SigmoidNet(D, 100, D).to(device)
     elif use_net == 'Multi_SinNet':
-        model = Multi_SinNet(2, 100, 2).to(device)
+        model = Multi_SinNet(D, 100, D).to(device)
     elif use_net == 'VanillaNet':
-        base_model = SinNet(2, 100, 2).to(device)
-        additon_model = PolNet(2,4).to(device)
+        base_model = SinNet(D, 100, D).to(device)
+        additon_model = PolNet(D,7).to(device)
         model = VanillaNet(base_model, additon_model)
     elif use_net == 'Lagrangian_SinNet':
-        model = SigmoidNet(2, 300, 1).to(device)
+        model = SigmoidNet(D, 300, 1).to(device)
         delta_q = 1e-2
         w_list = [1,1]
         w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
@@ -48,6 +53,8 @@ def loop_func(train_file, use_net):
     else:
         earlyStop_patience = 30
         learning_rate = 0.1
+
+
 
     #model = LogNet(2,100,2).to(device)
 
@@ -106,6 +113,9 @@ def loop_func(train_file, use_net):
                                                       'test_output_mat': test_output_mat.numpy(),
                                                       'train_input_mat': train_input_mat.numpy(),
                                                       'train_output_mat': train_output_mat.numpy()})
+
+    test_loss, abs_rms_vec, rel_rms_vec = test('Base', model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
+
     # save model
     # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
     # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
@@ -113,19 +123,20 @@ def loop_func(train_file, use_net):
 
 #train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
 #train_file_list = ['N3_std5', 'N5_std5','N7_std5','N8_std5','N10_std5','N12_std5','N15_std5','N17_std5','N20_std5']
-N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
-std = 1
-train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
+# N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
+# std = 1
+# train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 
-use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
-use_net_list = ['VanillaNet']
+# use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
+# use_net_list = ['VanillaNet']
 
-for train_file in train_file_list:
-    for use_net in use_net_list:
-        loop_func(train_file, use_net)
+# for train_file in train_file_list:
+#     for use_net in use_net_list:
+#         loop_func(train_file, use_net)
 
 #loop_func('N8_std1','Lagrangian_SinNet')
+loop_func('N8_std1','SinNet')
 
 
 # test
-loop_func('N8_std1', 'Lagrangian_SinNet')
+#loop_func('N8_std1', 'Lagrangian_SinNet')
