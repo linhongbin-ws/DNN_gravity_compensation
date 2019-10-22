@@ -110,7 +110,7 @@ def loop_func(train_file, use_net):
 #train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
 #train_file_list = ['N3_std5', 'N5_std5','N7_std5','N8_std5','N10_std5','N12_std5','N15_std5','N17_std5','N20_std5']
 N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
-std = 0
+std = 9
 train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 
 use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']

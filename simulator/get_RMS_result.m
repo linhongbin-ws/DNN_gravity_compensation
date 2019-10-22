@@ -1,9 +1,9 @@
-net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','SinNet.mat','dynamic_model.mat'}
-legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net', 'Sin Net','Dynamic Model'}
+net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat','SinNet.mat'}
+legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net','Dynamic Model', 'Sin Net'}
 % N_arr = [5,8,15];
 % std_arr = [1, 5, 9];
 N_arr = [2,3,4,5,6,7,8,9,10,12,15,17,20];
-std_arr = [0];
+std_arr = [9];
 
 result_list ={};
 for j=1:size(std_arr,2)
@@ -27,7 +27,7 @@ plot_rms(4, 2, legend_list,N_arr, result_list)
 
 function plot_rms(plt_idx, jnt_no, legend_list,N_arr, result_list)
     linewidth = 3;
-    mksize =12;
+    mksize =6;
     net_result_list ={};
     for j=1:size(result_list{1},2)
         result_mat = [];
@@ -41,7 +41,7 @@ function plot_rms(plt_idx, jnt_no, legend_list,N_arr, result_list)
     fntsize = 20;
     p_list = []
     for i=1:numel(net_result_list)
-        p_list(end+1) = plot(N_arr, net_result_list{i}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
+        p_list(end+1) = plot(N_arr, net_result_list{i}(jnt_no,:),'-o','LineWidth',linewidth,'MarkerSize',mksize);
     end
     hold off
     set(gca,'FontSize',fntsize);

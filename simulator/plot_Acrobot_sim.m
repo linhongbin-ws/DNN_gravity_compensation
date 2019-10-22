@@ -34,7 +34,7 @@ xticks(ticks);
 yticks(ticks);
 ticks = [min(Z1,[],'all'), 0, max(Z1,[],'all')];
 zticks(ticks)
-title('Measuring and ground-truth gravity for Joint 1 of Acrobot')
+%title('Measuring and ground-truth gravity for Joint 1 of Acrobot')
 legend([surfplot, splot], {'Ground-truth gravity', 'Measuring gravity'});
 
 
@@ -56,6 +56,6 @@ xticks(ticks);
 yticks(ticks);
 ticks = [min(Z2,[],'all'), 0, max(Z2,[],'all')];
 zticks(ticks)
-title('Measuring and ground-truth gravity for Joint 2 of Acrobot')
+%title('Measuring and ground-truth gravity for Joint 2 of Acrobot')
 legend([surfplot, splot], {'Ground-truth gravity', 'Measuring gravity'});
 
