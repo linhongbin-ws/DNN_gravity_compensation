@@ -1,7 +1,9 @@
-net_list = {'ReLuNet.mat','SigmoidNet.mat','SinNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat'}
-legend_list = {'ReLu Net','Sigmoid Net','Sin Net','Lagrangian-Sin Net', 'Dynamic Model'}
-N_arr = [5,8,15];
-std_arr = [1, 5, 9];
+net_list = {'ReLuNet.mat','SigmoidNet.mat','SinNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat','Multi_SinNet.mat'}
+legend_list = {'ReLu Net','Sigmoid Net','Sin Net','Lagrangian-Sin Net', 'Dynamic Model','Multi_SinNet'}
+% N_arr = [5,8,15];
+% std_arr = [1, 5, 9];
+N_arr = [3,5,7,8,10,12,15,17,20];
+std_arr = [1];
 
 result_list ={};
 for j=1:size(std_arr,2)
@@ -16,19 +18,19 @@ for j=1:size(std_arr,2)
     end
 end
 
-plot_rms(1, 1, legend_list,N_arr, result_list(1:3))
-plot_rms(2, 1, legend_list,N_arr, result_list(4:6))
-plot_rms(3, 1, legend_list,N_arr, result_list(7:9))
-plot_rms(4, 2, legend_list,N_arr, result_list(1:3))
-plot_rms(5, 2, legend_list,N_arr, result_list(4:6))
-plot_rms(6, 2, legend_list,N_arr, result_list(7:9))
+plot_rms(1, 1, legend_list,N_arr, result_list)
+%plot_rms(2, 1, legend_list,N_arr, result_list(4:6))
+%plot_rms(3, 1, legend_list,N_arr, result_list(7:9))
+plot_rms(4, 2, legend_list,N_arr, result_list)
+% plot_rms(5, 2, legend_list,N_arr, result_list(4:6))
+% plot_rms(6, 2, legend_list,N_arr, result_list(7:9))
 
 function plot_rms(plt_idx, jnt_no, legend_list,N_arr, result_list)
     linewidth = 3;
     mksize =12;
     net_result_list ={};
     for j=1:size(result_list{1},2)
-        result_mat = []
+        result_mat = [];
         for i=1:numel(result_list)
             result_mat = [result_mat, result_list{i}(:,j)]
         end
@@ -37,16 +39,16 @@ function plot_rms(plt_idx, jnt_no, legend_list,N_arr, result_list)
     figure(plt_idx)
     hold on
     fntsize = 20;
-    p1 = plot(N_arr, net_result_list{1}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
-    p2 = plot(N_arr, net_result_list{2}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
-    p3 = plot(N_arr, net_result_list{3}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
-    p4 = plot(N_arr, net_result_list{4}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
-    p5 = plot(N_arr, net_result_list{5}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
+    p_list = []
+    for i=1:numel(net_result_list)
+        p_list(end+1) = plot(N_arr, net_result_list{i}(jnt_no,:),'-x','LineWidth',linewidth,'MarkerSize',mksize);
+    end
     hold off
     set(gca,'FontSize',fntsize);
-    legend([p1,p2,p3,p4, p5], legend_list,'location','best');
+    legend(p_list, legend_list,'location','best');
     xlabel('$N$','interpreter','latex','FontSize',fntsize)
     ylabel(sprintf("$\\epsilon_{RMS_%d} (\\%%)$", jnt_no),'interpreter','latex','FontSize',fntsize)
+    ylim([0,1])
 end
 
 

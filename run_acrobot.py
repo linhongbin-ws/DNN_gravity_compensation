@@ -28,9 +28,11 @@ def loop_func(train_file, use_net):
         model = ReLuNet(2, [100], 2).to(device)
     elif use_net == 'SigmoidNet':
         model = SigmoidNet(2, 100, 2).to(device)
+    elif use_net == 'Multi_SinNet':
+        model = Multi_SinNet(2, 100, 2).to(device)
     elif use_net == 'Lagrangian_SinNet':
-        model = SinNet(2, 30, 1).to(device)
-        delta_q = 1e-1
+        model = SigmoidNet(2, 300, 1).to(device)
+        delta_q = 1e-2
         w_list = [1,1]
         w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
     else:
@@ -105,11 +107,19 @@ def loop_func(train_file, use_net):
     # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
     #     cPickle.dump(output_scaler, fid)
 
-train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
-use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Lagrangian_SinNet']
+#train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
+#train_file_list = ['N3_std5', 'N5_std5','N7_std5','N8_std5','N10_std5','N12_std5','N15_std5','N17_std5','N20_std5']
+N_list = [3,5,7,8,10,12,15,17,20]
+train_file_list = ['N'+str(i)+'_std1' for i in N_list]
 
-# for train_file in train_file_list:
-#     for use_net in use_net_list:
-#         loop_func(train_file, use_net)
+use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet', 'Multi_SinNet','Lagrangian_SinNet']
 
-loop_func('N8_std1','Lagrangian_SinNet')
+for train_file in train_file_list:
+    for use_net in use_net_list:
+        loop_func(train_file, use_net)
+
+#loop_func('N8_std1','Lagrangian_SinNet')
+
+
+# test
+#loop_func('N8_std1', 'Lagrangian_SinNet')

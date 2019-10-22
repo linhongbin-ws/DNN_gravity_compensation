@@ -93,6 +93,21 @@ class SinNet(torch.nn.Module):
         y_pred = self._output_linear(h)
         return y_pred
 
+class Multi_SinNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(Multi_SinNet, self).__init__()
+        self.sin_layers = torch.nn.ModuleList([SinNet(i+1, H, D_out) for i in range(D_in)])
+        self.D_in = D_in
+        self.D_out = D_out
+
+
+    def forward(self, x):
+        y_pred = torch.zeros([x.shape[0], self.D_out], dtype=torch.float32, device='cpu')
+        for i in range(self.D_in):
+            layer = self.sin_layers[i]
+            y_pred = y_pred + layer(x[:,:i+1])
+        return y_pred
+
 
 class SigmoidNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):

@@ -1,12 +1,15 @@
-N_arr = [5, 8, 15];
-std_arr = [1, 5, 9];
+% N_arr = [5, 8, 15];
+% std_arr = [1, 5, 9];
+N_arr = [3,5,7,8,10,12,15,17,20];
+std_arr = [9];
+
 for j=1:size(std_arr,2)
 for i=1:size(N_arr,2)
-    train_model(N_arr(i), std_arr(j))
+    train_acrobot_model(N_arr(i), std_arr(j))
 end
 end
 
-function train_model(N, std)
+function train_acrobot_model(N, std)
     train_file = sprintf("N%d_std%d\\data\\N%d_std%d.mat", N, std, N, std);
     test_file = sprintf("N%d_std%d\\data\\N%d_std%d.mat", 34, std, 34, std);
     load(train_file)
@@ -15,8 +18,9 @@ function train_model(N, std)
     for i = 1:size(input_mat,1)
         q1 = input_mat(i,1);
         q2 = input_mat(i,2);
-        tau_vec = [tau_vec;output_mat(i,1);output_mat(i,2)];
-        R_mat = [R_mat;analytical_regressor_pos_mat(9.81, q2,q3,q4,q5,q6)];
+        R =Regressor(q1,q2);
+        R_mat = [R_mat;R];
+        tau_vec = [tau_vec; output_mat(i,:).'];
     end
 
      beta_vec = pinv(R_mat)*tau_vec;

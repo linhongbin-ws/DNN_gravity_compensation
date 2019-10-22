@@ -1,5 +1,12 @@
-jnt_sample_num = 34;
-std = 9;
+jnt_sample_num_arr = [3,5,7,8,10,12,15,17,20];
+std_arr = [1];
+for i = 1:size(jnt_sample_num_arr,2)
+    for j=1:size(std_arr,2)
+        generate_data(jnt_sample_num_arr(i), std_arr(j));
+    end
+end
+
+function generate_data(jnt_sample_num, std)
 jnt_range = linspace(-pi,pi,jnt_sample_num);
 [X, Y] = meshgrid(jnt_range);
 Z1_noise = zeros(size(X));
@@ -17,3 +24,4 @@ output_mat = [Z1_noise(:), Z2_noise(:)];
 
 mkdir(sprintf('N%d_std%d/data', jnt_sample_num, std))
 save(sprintf('N%d_std%d/data/N%d_std%d.mat', jnt_sample_num, std,jnt_sample_num, std),'input_mat','output_mat')
+end
