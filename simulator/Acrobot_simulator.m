@@ -1,5 +1,6 @@
-jnt_sample_num_arr = [3,5,7,8,10,12,15,17,20];
-std_arr = [1];
+% jnt_sample_num_arr = [2,3,4,5,6,7,8,9,10,12,15,17,20];
+jnt_sample_num_arr = [34]
+std_arr = [0];
 for i = 1:size(jnt_sample_num_arr,2)
     for j=1:size(std_arr,2)
         generate_data(jnt_sample_num_arr(i), std_arr(j));

@@ -1,9 +1,9 @@
-net_list = {'ReLuNet.mat','SigmoidNet.mat','SinNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat','Multi_SinNet.mat'}
-legend_list = {'ReLu Net','Sigmoid Net','Sin Net','Lagrangian-Sin Net', 'Dynamic Model','Multi_SinNet'}
+net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','SinNet.mat','dynamic_model.mat'}
+legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net', 'Sin Net','Dynamic Model'}
 % N_arr = [5,8,15];
 % std_arr = [1, 5, 9];
-N_arr = [3,5,7,8,10,12,15,17,20];
-std_arr = [1];
+N_arr = [2,3,4,5,6,7,8,9,10,12,15,17,20];
+std_arr = [0];
 
 result_list ={};
 for j=1:size(std_arr,2)

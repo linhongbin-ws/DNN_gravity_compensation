@@ -8,8 +8,8 @@ Z1_noise = zeros(size(X));
 Z2_noise = zeros(size(X));
 for i = 1:size(X,1)
     for j = 1:size(X,2)
-        G = Acrobot_gravity(X(i,j), Y(i,j), false);
-        G_noise = Acrobot_gravity(X(i,j), Y(i,j), true);
+        G = Acrobot_gravity(X(i,j), Y(i,j), 0,0);
+        G_noise = Acrobot_gravity(X(i,j), Y(i,j), 0,0);
         Z1(i,j) = G(1);
         Z2(i,j) = G(2);
         Z1_noise(i,j) = G_noise(1);
@@ -19,8 +19,8 @@ end
 figure(1)
 hold on
 surfplot = surf(rad2deg(X),rad2deg(Y),Z1);
-markersize = 5;
-splot = scatter3(rad2deg(X(:)),rad2deg(Y(:)), Z1_noise(:),markersize,'filled');
+markersize = 12;
+splot = scatter3(rad2deg(X(:)),rad2deg(Y(:)), Z1_noise(:),markersize,'filled','ro');
 splot.MarkerFaceAlpha = 0.2;
 alpha 0.7
 hold off
@@ -41,9 +41,9 @@ legend([surfplot, splot], {'Ground-truth gravity', 'Measuring gravity'});
 figure(2)
 hold on
 surfplot = surf(rad2deg(X),rad2deg(Y),Z2);
-markersize = 5;
-splot = scatter3(rad2deg(X(:)),rad2deg(Y(:)), Z2_noise(:),markersize,'filled');
-splot.MarkerFaceAlpha = 0.2;
+markersize = 12;
+splot = scatter3(rad2deg(X(:)),rad2deg(Y(:)), Z2_noise(:),markersize,'filled','ro');
+splot.MarkerFaceAlpha = 0.8;
 alpha 0.7
 hold off
 view(3)
