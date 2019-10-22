@@ -3,14 +3,14 @@ from Net import *
 device = torch.device('cpu')
 
 
-N, D_in, D_out = 64, 1, 1
+N, D_in, D_out = 64, 3, 3
 
 
 x = torch.randn(N, D_in, device=device)
-y = x + 0.5*x.pow(2) + 0.1 * x.pow(3)
+y = x + 0.5*x.pow(2) + 0.1 * x.pow(3) +0.6
 
 learning_rate = 2e-1
-model = PolNet(5)
+model = PolNet(D_in,5)
 loss_fn = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 

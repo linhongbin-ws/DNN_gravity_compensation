@@ -1,17 +1,32 @@
 import torch
 
 class PolNet(torch.nn.Module):
-    def __init__(self, pol_dim, device='cpu'):
+    def __init__(self, D_in, pol_dim,  device='cpu'):
         super(PolNet, self).__init__()
+        self.D_in = D_in
         self.pol_dim = pol_dim
         self.device = device
-        self.output_linear = torch.nn.Linear(pol_dim, 1)
+        self.linears = torch.nn.ModuleList([torch.nn.Linear(pol_dim+1, 1) for i in range(D_in)])
     def forward(self, x):
-        feature = torch.zeros([x.shape[0], self.pol_dim], dtype=torch.float32, device=self.device)
-        for i in range(self.pol_dim):
-            feature[:,i] = x.pow(i+1).squeeze()
-        y_pred = self.output_linear(feature)
-        return y_pred
+        y = torch.ones([x.shape[0], self.D_in], dtype=torch.float32, device=self.device)
+        for j in range(self.D_in):
+            feature = torch.ones([x.shape[0], self.pol_dim+1], dtype=torch.float32, device=self.device)
+            for i in range(self.pol_dim):
+                feature[:,i+1] = x[:,j].pow(i+1).squeeze()
+            linear = self.linears[j]
+            y_pred = linear(feature)
+            y[:,j] = y_pred.squeeze()
+        return y
+
+class VanillaNet(torch.nn.Module):
+    def __init__(self, base_net, addition_net):
+        super(VanillaNet, self).__init__()
+        self.base_net = base_net
+        self.addition_net = addition_net
+    def forward(self, x):
+        y1 = self.base_net(x)
+        y = self.addition_net(x) + y1
+        return y
 
 def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
     target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
@@ -25,11 +40,6 @@ def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
     target_hat = torch.mul(target_hat, w_vec)
     return target_hat
 
-def PolyNN(base_model, polyNet_list, feature):
-    out = base_model(feature)
-    for i in range(out.shape[1]):
-        polyModel = polyNet_list[i]
-        out[:,i] = out[:,i] + polyModel(feature).squeeze()
 
 # create Net architecture
 class LogNet(torch.nn.Module):
