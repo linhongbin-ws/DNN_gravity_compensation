@@ -5,6 +5,7 @@ from os import remove
 import matplotlib.pyplot as plt
 from regularizeTool import EarlyStopping
 from Net import Lagrange_Net
+from loadModel import load_model
 
 class AutoEncoder(torch.nn.Module):
     def __init__(self, linear_param_generator, act_func, device):
@@ -125,10 +126,8 @@ def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, lo
         if early_stopping.early_stop:
             print("Early stopping at Epoch")
             break
-
+    modelList, _, _ = load_model('.', 'checkpoint', modelList)
     checkpoint = torch.load('checkpoint.pt')
-    for i in range(len(modelList)):
-        modelList[i].load_state_dict(checkpoint['model'+str(i+1)])
     remove('checkpoint.pt')
 
     # plot

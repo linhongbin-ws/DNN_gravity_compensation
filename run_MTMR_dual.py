@@ -8,7 +8,7 @@ from os.path import join
 from evaluateTool import testList
 import scipy.io as sio
 from os import mkdir
-from loadModel import get_model
+from loadModel import *
 
 # path
 
@@ -27,7 +27,7 @@ def loop_func(use_net):
         earlyStop_patience = 80
         learning_rate = 0.02
     else:
-        earlyStop_patience = 40
+        earlyStop_patience = 20
         learning_rate = 0.05
 
     # config hyper-parameters
@@ -69,6 +69,10 @@ def loop_func(use_net):
 
     modelList = multiTask_train(model, train_loaderList, valid_loaderList, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
     abs_rms_vec, rel_rms_vec = testList(modelList, test_data_path, input_scalerList, output_scalerList, device, verbose=True)
+
+    save_model('.','test',modelList, input_scalerList, output_scalerList)
+    # modelList, input_scalerList, output_scalerList = load_model('.','test',modelList)
+    # print(input_scalerList)
 
 #loop_func('N8_std1','Lagrangian_SinNet')
 loop_func('VanillaBPNet')

@@ -38,25 +38,21 @@ def get_model(robot, use_net, D, device='cpu'):
 
     return model
 
-def save_model(file_path, file_name, model):
+def save_model(file_path, file_name, model, input_scaler=None, output_scaler=None):
     if not path.exists(file_path):
         mkdir(path)
 
     if isinstance(model, list):
-        model_dict = {'model' + str(i + 1): model[i].state_dict() for i in range(len(model))}
-        torch.save(model_dict, file_name+'.pt')
+        save_dict = {'model' + str(i + 1): model[i].state_dict() for i in range(len(model))}
     else:
-        torch.save(model.state_dict(), file_name+'.pt')
+        save_dict = model.state_dict()
 
-def save_model(file_path, file_name, model):
-    if not path.exists(file_path):
-        mkdir(path)
+    if input_scaler is not None:
+        save_dict['input_scaler'] = input_scaler
+    if output_scaler is not None:
+        save_dict['output_scaler'] = output_scaler
 
-    if isinstance(model, list):
-        model_dict = {'model' + str(i + 1): model[i].state_dict() for i in range(len(model))}
-        torch.save(model_dict, path.join(file_path, file_name+'.pt'))
-    else:
-        torch.save(model.state_dict(), path.join(file_path, file_name+'.pt'))
+    torch.save(save_dict, path.join(file_path, file_name+'.pt'))
 
 def load_model(file_path, file_name, model):
     file = path.join(file_path, file_name)
@@ -70,4 +66,14 @@ def load_model(file_path, file_name, model):
             model[i].load_state_dict(checkpoint['model' + str(i + 1)])
     else:
         model.load_state_dict(torch.load(file))
-    return model
+
+    if 'input_scaler' in checkpoint:
+        input_scaler = checkpoint['input_scaler']
+    else:
+        input_scaler = None
+
+    if 'output_scaler' in checkpoint:
+        output_scaler = checkpoint['output_scaler']
+    else:
+        output_scaler = None
+    return model, input_scaler, output_scaler

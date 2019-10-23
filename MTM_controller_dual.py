@@ -1,12 +1,12 @@
 import rospy
 from sensor_msgs.msg import JointState
-from evaluateTool import predict_lagrangian, predict
+from evaluateTool import predictList
 import dvrk
 import numpy as np
 from os.path import join
 import torch
 from Net import *
-from loadModel import get_model
+from loadModel import get_model, load_model
 import time
 import sys
 if sys.version_info[0] < 3:
@@ -24,18 +24,13 @@ use_net = 'VanillaBPNet'
 D = 5
 device = 'cpu'
 
-model = get_model('MTM', use_net, D, device=device)
+modelList = get_model('MTM', use_net, D, device=device)
 
-model.load_state_dict(torch.load(join(train_data_path, 'model', use_net+'.pt')))
-with open(join(train_data_path, 'model', use_net+'.pkl'), 'r') as fid:
-    input_scaler = cPickle.load(fid)
-    output_scaler = cPickle.load(fid)
-    if use_net == 'Lagrangian_SinNet':
-        delta_q = cPickle.load(fid)
-        w_vec = cPickle.load(fid)
+modelList, input_scalerList, output_scalerList = load_model('.','test',modelList)
 
+for model in modelList:
+    model = model.to('cpu')
 
-model = model.to('cpu')
 pub = rospy.Publisher(pub_topic, JointState, queue_size=15)
 rospy.init_node(MTM_ARM + 'controller', anonymous=True)
 rate = rospy.Rate(10)  # 10hz
@@ -60,17 +55,13 @@ def callback(data):
     pos_arr = np.array(pos_list)
     effort_arr = np.array(effort_list)
     if D == 5:
-        pos_arr = pos_arr[:-1]
+        # only get joint input from Joint 2 to 6
+        pos_arr = pos_arr[1:-1]
     #print(pos_arr)
     input = torch.from_numpy(pos_arr).to('cpu').float()
     input = input.unsqueeze(0)
     #print(input)
-    if use_net == 'Lagrangian_SinNet':
-        global delta_q
-        global w_vec
-        output = predict_lagrangian(model, input, input_scaler, output_scaler, delta_q, w_vec)
-    else:
-        output = predict(model, input, input_scaler, output_scaler, 'cpu')
+    output = predictList(modelList, input, input_scalerList, output_scalerList)
     output = output.squeeze(0)
     output_arr = output.numpy()
     #print('predict:', output_arr)
@@ -90,7 +81,12 @@ def callback(data):
     elapsed = time.clock()
     elapsed = elapsed - start
     #print "Time spent in (function name) is: ", elapsed
+
+
+
+
 if __name__ == '__main__':
+    # init pose
     init_pos = np.array([0.0, 0.0, 0.0, 0.0, 3.1415/2.0, 0.0, 0.0])
     mtm_arm.move_joint(init_pos)
     time.sleep(3)
