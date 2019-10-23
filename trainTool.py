@@ -128,7 +128,7 @@ def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, lo
 
     checkpoint = torch.load('checkpoint.pt')
     for i in range(len(modelList)):
-        model.load_state_dict(checkpoint['model'+str(i+1)])
+        modelList[i].load_state_dict(checkpoint['model'+str(i+1)])
     remove('checkpoint.pt')
 
     # plot
