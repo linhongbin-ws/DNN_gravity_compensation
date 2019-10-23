@@ -8,25 +8,19 @@ import torch
 from Net import *
 from loadModel import get_model, load_model
 import time
-import sys
-if sys.version_info[0] < 3:
-    import cPickle
-else:
-    import _pickle as cPickle
-
 
 
 MTM_ARM = 'MTMR'
 pub_topic = '/dvrk/' + MTM_ARM + '/set_effort_joint'
 sub_topic = '/dvrk/' + MTM_ARM + '/state_joint_current'
 train_data_path = join("data", "MTMR_28002",'real', 'uniform', 'D5N5','')
-use_net = 'VanillaBPNet'
+use_net = 'VanillaPolyNet'
 D = 5
 device = 'cpu'
 
 modelList = get_model('MTM', use_net, D, device=device)
 
-modelList, input_scalerList, output_scalerList = load_model('.','test',modelList)
+modelList, input_scalerList, output_scalerList = load_model('.','test_dualController',modelList)
 
 for model in modelList:
     model = model.to('cpu')
@@ -35,6 +29,7 @@ pub = rospy.Publisher(pub_topic, JointState, queue_size=15)
 rospy.init_node(MTM_ARM + 'controller', anonymous=True)
 rate = rospy.Rate(10)  # 10hz
 mtm_arm = dvrk.mtm(MTM_ARM)
+count = 0
 
 
 def callback(data):
@@ -43,6 +38,7 @@ def callback(data):
     global input_scaler
     global output_scaler
     global pub
+    global count
 
     start = time.clock()
 
@@ -56,7 +52,7 @@ def callback(data):
     effort_arr = np.array(effort_list)
     if D == 5:
         # only get joint input from Joint 2 to 6
-        pos_arr = pos_arr[1:-1]
+        pos_arr = pos_arr[1:]
     #print(pos_arr)
     input = torch.from_numpy(pos_arr).to('cpu').float()
     input = input.unsqueeze(0)
@@ -64,9 +60,14 @@ def callback(data):
     output = predictList(modelList, input, input_scalerList, output_scalerList)
     output = output.squeeze(0)
     output_arr = output.numpy()
-    #print('predict:', output_arr)
-    #print('measure:',effort_arr[1:6])
-    #print('error:',output_arr-effort_arr[1:6])
+    if (count == 50):
+        print('predict:', output_arr)
+        print('measure:',effort_arr[1:6])
+        print('error:',output_arr-effort_arr[1:6])
+        count = 0
+    else:
+        count = count+1
+    #print(count)
 
     msg = JointState()
     msg.effort = []
@@ -77,7 +78,8 @@ def callback(data):
     msg.effort.append(output_arr[3])
     msg.effort.append(output_arr[4])
     msg.effort.append(0)
-    pub.publish(msg)
+
+  #  pub.publish(msg)
     elapsed = time.clock()
     elapsed = elapsed - start
     #print "Time spent in (function name) is: ", elapsed
