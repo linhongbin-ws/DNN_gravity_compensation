@@ -6,7 +6,7 @@ def get_model(robot, use_net, D, device='cpu'):
     # define net for MTM
     if robot == 'MTM':
         if use_net == 'SinNet':
-            model = SinNet(D, 100, D).to(device)
+            model = SinNet(D, 400, D).to(device)
         elif use_net == 'ReLuNet':
             model = ReLuNet(D, [100], D).to(device)
         elif use_net == 'SigmoidNet':

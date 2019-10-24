@@ -5,7 +5,7 @@ from os.path import join
 from evaluateTool import *
 import scipy.io as sio
 from os import mkdir
-from loadModel import get_model
+from loadModel import get_model, save_model
 
 def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     # config hyper-parameters
@@ -63,6 +63,8 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
 
     test_loss, abs_rms_vec, rel_rms_vec = evaluate_rms(model, loss_fn, test_data_path, input_scaler, output_scaler, device, verbose=True)
 
+    save_model('.', 'test_Controller', model, input_scaler, output_scaler)
+
 
 ################################################################################################################
 
@@ -84,3 +86,4 @@ train_data_path = join("data", "MTMR_28002", "real", "uniform", "D5N5", "dual")
 test_data_path = join("data", "MTMR_28002", "real", "random", "D5N10")
 valid_data_path = join("data", "MTMR_28002", "real", "random", "D5N319")
 loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
+

@@ -1,51 +1,33 @@
 import rospy
 from sensor_msgs.msg import JointState
-from evaluateTool import predict_lagrangian, predict
+from evaluateTool import predict
 import dvrk
 import numpy as np
 from os.path import join
 import torch
 from Net import *
+from loadModel import get_model, load_model
 import time
-import sys
-if sys.version_info[0] < 3:
-    import cPickle
-else:
-    import _pickle as cPickle
-
 
 
 MTM_ARM = 'MTMR'
 pub_topic = '/dvrk/' + MTM_ARM + '/set_effort_joint'
 sub_topic = '/dvrk/' + MTM_ARM + '/state_joint_current'
-train_data_path = join("data", "MTMR_28002",'real', 'uniform', 'D5N5')
 use_net = 'SinNet'
 D = 5
 device = 'cpu'
 
-if use_net == 'SinNet':
-    model = SinNet(5, 100, 5).to(device)
-elif use_net == 'ReLuNet':
-    model = ReLuNet(5, [100], 5).to(device)
-elif use_net == 'SigmoidNet':
-    model = SigmoidNet(5, 100, 5).to(device)
-elif use_net == 'Lagrangian_SinNet':
-    model = SinNet(5, 100, 1).to(device)
+model = get_model('MTM', use_net, D, device=device)
 
-model.load_state_dict(torch.load(join(train_data_path, 'model', use_net+'.pt')))
-with open(join(train_data_path, 'model', use_net+'.pkl'), 'r') as fid:
-    input_scaler = cPickle.load(fid)
-    output_scaler = cPickle.load(fid)
-    if use_net == 'Lagrangian_SinNet':
-        delta_q = cPickle.load(fid)
-        w_vec = cPickle.load(fid)
-
+model, input_scalerList, output_scalerList = load_model('.','test_Controller',model)
 
 model = model.to('cpu')
+
 pub = rospy.Publisher(pub_topic, JointState, queue_size=15)
 rospy.init_node(MTM_ARM + 'controller', anonymous=True)
 rate = rospy.Rate(10)  # 10hz
 mtm_arm = dvrk.mtm(MTM_ARM)
+count = 0
 
 
 def callback(data):
@@ -54,6 +36,7 @@ def callback(data):
     global input_scaler
     global output_scaler
     global pub
+    global count
 
     start = time.clock()
 
@@ -66,22 +49,23 @@ def callback(data):
     pos_arr = np.array(pos_list)
     effort_arr = np.array(effort_list)
     if D == 5:
-        pos_arr = pos_arr[:-1]
+        # only get joint input from Joint 2 to 6
+        pos_arr = pos_arr[1:]
     #print(pos_arr)
     input = torch.from_numpy(pos_arr).to('cpu').float()
     input = input.unsqueeze(0)
     #print(input)
-    if use_net == 'Lagrangian_SinNet':
-        global delta_q
-        global w_vec
-        output = predict_lagrangian(model, input, input_scaler, output_scaler, delta_q, w_vec)
-    else:
-        output = predict(model, input, input_scaler, output_scaler, 'cpu')
+    output = predict(model, input, input_scaler, output_scaler)
     output = output.squeeze(0)
     output_arr = output.numpy()
-    #print('predict:', output_arr)
-    #print('measure:',effort_arr[1:6])
-    #print('error:',output_arr-effort_arr[1:6])
+    if (count == 50):
+        print('predict:', output_arr)
+        print('measure:',effort_arr[1:6])
+        print('error:',output_arr-effort_arr[1:6])
+        count = 0
+    else:
+        count = count+1
+    #print(count)
 
     msg = JointState()
     msg.effort = []
@@ -92,11 +76,17 @@ def callback(data):
     msg.effort.append(output_arr[3])
     msg.effort.append(output_arr[4])
     msg.effort.append(0)
-    pub.publish(msg)
+
+  #  pub.publish(msg)
     elapsed = time.clock()
     elapsed = elapsed - start
     #print "Time spent in (function name) is: ", elapsed
+
+
+
+
 if __name__ == '__main__':
+    # init pose
     init_pos = np.array([0.0, 0.0, 0.0, 0.0, 3.1415/2.0, 0.0, 0.0])
     mtm_arm.move_joint(init_pos)
     time.sleep(3)
