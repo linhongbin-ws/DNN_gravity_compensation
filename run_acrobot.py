@@ -35,10 +35,11 @@ def loop_func(train_file, use_net):
         additon_model = PolNet(2,4).to(device)
         model = VanillaNet(base_model, additon_model)
     elif use_net == 'Lagrangian_SinNet':
-        model = SigmoidNet(2, 300, 1).to(device)
+        base_model = SinNet(2, 300, 1).to(device)
         delta_q = 1e-2
         w_list = [1,1]
         w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
+        model = LagrangeNet(base_model, delta_q, w_vec)
     else:
         raise Exception(use_net + 'is not support')
 
@@ -75,20 +76,20 @@ def loop_func(train_file, use_net):
 
 
     # train model
-    if use_net=='Lagrangian_SinNet':
-        model = train('Lagrangian', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch,
-                                 delta_q=delta_q, w_vec=w_vec, is_plot=False)
-    else:
-        model = train('Base', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
+    # if use_net=='Lagrangian_SinNet':
+    #     model = train('Lagrangian', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch,
+    #                              delta_q=delta_q, w_vec=w_vec, is_plot=False)
+    # else:
+    model = train('Base', model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=False)
 
     # test model
     model = model.to('cpu')
     test_dataset = load_data_dir(join(test_data_path,"data"), device='cpu', is_scale=False)
     test_input_mat = test_dataset.x_data
-    if use_net=='Lagrangian_SinNet':
-        test_output_mat = predict('Lagrangian',model, test_input_mat, input_scaler, output_scaler, delta_q, w_vec)
-    else:
-        test_output_mat = predict('Base', model, test_input_mat, input_scaler, output_scaler, 'cpu')
+    # if use_net=='Lagrangian_SinNet':
+    #     test_output_mat = predict('Lagrangian',model, test_input_mat, input_scaler, output_scaler, delta_q, w_vec)
+    # else:
+    test_output_mat = predict('Base', model, test_input_mat, input_scaler, output_scaler, 'cpu')
 
 
     print(test_output_mat)
@@ -128,4 +129,4 @@ for train_file in train_file_list:
 
 
 # test
-loop_func('N8_std1', 'Lagrangian_SinNet')
+#loop_func('N8_std1', 'Lagrangian_SinNet')

@@ -1,14 +1,15 @@
 import torch
 from loadDataTool import load_data_dir
 import numpy as np
-from Net import Lagrange_Net
+# from Net import Lagrange_Net
 
 def predict(type, model, input_mat, input_scaler, output_scaler, delta_q=None, w_vec=None):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
     if type == 'Base':
         target_norm_hat = model(feature_norm)
     elif type == 'Lagrangian':
-        target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
+        # target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
+        pass
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
@@ -75,7 +76,8 @@ def test(type, model, loss_fn, test_data_path, input_scaler, output_scaler, devi
     if type=='Base':
         target_norm_hat = model(feature_norm)
     elif type=='Lagrangian':
-        target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
+        # target_norm_hat = Lagrange_Net(model, feature_norm, delta_q, w_vec, device='cpu')
+        pass
 
 
     loss = loss_fn(target_norm_hat, target_norm)

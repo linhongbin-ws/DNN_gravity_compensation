@@ -4,7 +4,7 @@ import numpy as np
 from os import remove
 import matplotlib.pyplot as plt
 from regularizeTool import EarlyStopping
-from Net import Lagrange_Net
+# from Net import Lagrange_Net
 from loadModel import load_model
 
 class AutoEncoder(torch.nn.Module):
@@ -36,7 +36,8 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
             if type == 'Base':
                 target_hat = model(feature)
             elif type == 'Lagrangian':
-                target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
+                # target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
+                pass
             loss = loss_fn(target_hat, target)
             optimizer.zero_grad()  # clear gradients for next train
             loss.backward()  # backpropagation, compute gradients
@@ -47,7 +48,8 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
             if type == 'Base':
                 target_hat = model(feature)
             elif type == 'Lagrangian':
-                target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
+                # target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
+                pass
             loss = loss_fn(target_hat, target)
             valid_losses.append(loss.item())
 

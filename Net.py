@@ -28,17 +28,37 @@ class VanillaNet(torch.nn.Module):
         y = self.addition_net(x) + y1
         return y
 
-def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
-    target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
-    base_hat = model(feature)
-    base_hat.require_grad = False
-    for j in range(feature.shape[1]):
-        feature_d = feature.clone()
-        feature_d[:, j] = feature_d[:, j].clone() + torch.ones(feature_d[:, j].shape, device=device).float() * delta_q
-        target_hat[:, j] = model(feature_d).squeeze()-base_hat.squeeze()
-    target_hat = target_hat / delta_q
-    target_hat = torch.mul(target_hat, w_vec)
-    return target_hat
+class LagrangeNet(torch.nn.Module):
+    def __init__(self, base_model, delta_q, w_vec, device='cpu'):
+        super(LagrangeNet, self).__init__()
+        self.base_model = base_model
+        self.delta_q = delta_q
+        self.w_vec = w_vec
+        self.device = device
+    def forward(self, feature):
+        target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=self.device)
+        base_hat = self.base_model(feature)
+        base_hat.require_grad = False
+        for j in range(feature.shape[1]):
+            feature_d = feature.clone()
+            feature_d[:, j] = feature_d[:, j].clone() + torch.ones(feature_d[:, j].shape,
+                                                                   device=self.device).float() * self.delta_q
+            target_hat[:, j] = self.base_model(feature_d).squeeze() - base_hat.squeeze()
+        target_hat = target_hat / self.delta_q
+        target_hat = torch.mul(target_hat, self.w_vec)
+        return target_hat
+
+# def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):
+#     target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=device)
+#     base_hat = model(feature)
+#     base_hat.require_grad = False
+#     for j in range(feature.shape[1]):
+#         feature_d = feature.clone()
+#         feature_d[:, j] = feature_d[:, j].clone() + torch.ones(feature_d[:, j].shape, device=device).float() * delta_q
+#         target_hat[:, j] = model(feature_d).squeeze()-base_hat.squeeze()
+#     target_hat = target_hat / delta_q
+#     target_hat = torch.mul(target_hat, w_vec)
+#     return target_hat
 
 
 # create Net architecture
