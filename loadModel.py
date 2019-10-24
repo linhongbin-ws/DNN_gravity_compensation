@@ -78,7 +78,7 @@ def save_model(file_path, file_name, model, input_scaler=None, output_scaler=Non
     if isinstance(model, list):
         save_dict = {'model' + str(i + 1): model[i].state_dict() for i in range(len(model))}
     else:
-        save_dict = model.state_dict()
+        save_dict = {'model': model.state_dict()}
 
     if input_scaler is not None:
         save_dict['input_scaler'] = input_scaler
@@ -93,12 +93,12 @@ def load_model(file_path, file_name, model):
     if not path.isfile(file):
         raise Exception(file+ 'cannot not be found')
 
+    checkpoint = torch.load(file)
     if isinstance(model, list):
-        checkpoint = torch.load(file)
         for i in range(len(model)):
             model[i].load_state_dict(checkpoint['model' + str(i + 1)])
     else:
-        model.load_state_dict(torch.load(file))
+        model.load_state_dict(checkpoint['model'])
 
     if 'input_scaler' in checkpoint:
         input_scaler = checkpoint['input_scaler']

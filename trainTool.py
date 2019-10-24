@@ -58,9 +58,11 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
         if early_stopping.early_stop:
             print("Early stopping at Epoch")
             # update the model with checkpoint
-            model.load_state_dict(torch.load('checkpoint.pt'))
-            remove('checkpoint.pt')
             break
+
+    model, _, _ = load_model('.', 'checkpoint', model)
+    remove('checkpoint.pt')
+
     ### plot the train loss and validate loss curves
     if is_plot:
         fig = plt.figure(figsize=(10, 8))

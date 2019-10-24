@@ -19,7 +19,7 @@ device = 'cpu'
 
 model = get_model('MTM', use_net, D, device=device)
 
-model, input_scalerList, output_scalerList = load_model('.','test_Controller',model)
+model, input_scaler, output_scaler = load_model('.','test_Controller',model)
 
 model = model.to('cpu')
 
@@ -37,6 +37,7 @@ def callback(data):
     global output_scaler
     global pub
     global count
+    global model
 
     start = time.clock()
 
@@ -77,7 +78,7 @@ def callback(data):
     msg.effort.append(output_arr[4])
     msg.effort.append(0)
 
-  #  pub.publish(msg)
+    pub.publish(msg)
     elapsed = time.clock()
     elapsed = elapsed - start
     #print "Time spent in (function name) is: ", elapsed
