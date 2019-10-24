@@ -47,7 +47,7 @@ def load_data_dir(data_dir, device, is_scale=True):
     for root, dirs, files in os.walk(data_dir):
         for file in files:
             if file.endswith(".mat"):
-                print(os.path.join(root, file))
+                print('Load Data: ', os.path.join(root, file))
                 data_list.append(os.path.join(root, file))
     full_dataset = MTMDataset(data_list, device=device, is_scale=is_scale)
     return full_dataset

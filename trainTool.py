@@ -23,7 +23,7 @@ class AutoEncoder(torch.nn.Module):
         h = F.linear(h, self.w.t(), self.b_T)
         return h
 
-def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q=None, w_vec=None, is_plot=True):
+def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, is_plot=True):
     train_losses = []
     valid_losses = []  # to track the validation loss as the model trains
     avg_train_losses = []  # to track the average training loss per epoch as the model trains
@@ -33,11 +33,7 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
         train_losses = []
         valid_losses = []
         for feature, target in train_loader:
-            if type == 'Base':
-                target_hat = model(feature)
-            elif type == 'Lagrangian':
-                # target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
-                pass
+            target_hat = model(feature)
             loss = loss_fn(target_hat, target)
             optimizer.zero_grad()  # clear gradients for next train
             loss.backward()  # backpropagation, compute gradients
@@ -45,11 +41,7 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
             train_losses.append(loss.item())
         for feature, target in valid_loader:
             # forward pass: compute predicted outputs by passing inputs to the model
-            if type == 'Base':
-                target_hat = model(feature)
-            elif type == 'Lagrangian':
-                # target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
-                pass
+            target_hat = model(feature)
             loss = loss_fn(target_hat, target)
             valid_losses.append(loss.item())
 
@@ -59,14 +51,17 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
         avg_valid_losses.append(valid_loss)
         print('Epoch', t, ': Train Loss is ', train_loss, 'Validate Loss is', valid_loss)
 
+        if valid_loss<=goal_loss:
+            print("Reach goal loss, valid_loss=", valid_loss,'< goal loss=', goal_loss)
+            break
         early_stopping(valid_loss, model)
         if early_stopping.early_stop:
             print("Early stopping at Epoch")
+            # update the model with checkpoint
+            model.load_state_dict(torch.load('checkpoint.pt'))
+            remove('checkpoint.pt')
             break
-    model.load_state_dict(torch.load('checkpoint.pt'))
-    remove('checkpoint.pt')
-
-    # plot
+    ### plot the train loss and validate loss curves
     if is_plot:
         fig = plt.figure(figsize=(10, 8))
         plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
@@ -88,7 +83,7 @@ def train(type, model, train_loader, valid_loader, optimizer, loss_fn, early_sto
 
     return model
 
-def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q=None, w_vec=None, is_plot=True):
+def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=True):
     train_losses = []
     valid_losses = []  # to track the validation loss as the model trains
     avg_train_losses = []  # to track the average training loss per epoch as the model trains
@@ -154,120 +149,6 @@ def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, lo
 
     return modelList
 
-#
-# def train_base(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, is_plot=True):
-#     train_losses = []
-#     valid_losses = []  # to track the validation loss as the model trains
-#     avg_train_losses = []  # to track the average training loss per epoch as the model trains
-#     avg_valid_losses = []  # to track the average validation loss per epoch as the model trains
-#
-#     for t in range(max_training_epoch):
-#         train_losses = []
-#         valid_losses = []
-#         for feature, target in train_loader:
-#             target_hat = model(feature)
-#             loss = loss_fn(target_hat, target)
-#             optimizer.zero_grad()  # clear gradients for next train
-#             loss.backward()  # backpropagation, compute gradients
-#             optimizer.step()  # apply gradients
-#             train_losses.append(loss.item())
-#         for feature, target in valid_loader:
-#             # forward pass: compute predicted outputs by passing inputs to the model
-#             target_hat = model(feature)
-#             loss = loss_fn(target_hat, target)
-#             valid_losses.append(loss.item())
-#
-#         train_loss = np.average(train_losses)
-#         valid_loss = np.average(valid_losses)
-#         avg_train_losses.append(train_loss)
-#         avg_valid_losses.append(valid_loss)
-#         print('Epoch', t, ': Train Loss is ', train_loss, 'Validate Loss is', valid_loss)
-#
-#         early_stopping(valid_loss, model)
-#         if early_stopping.early_stop:
-#             print("Early stopping at Epoch")
-#             break
-#     model.load_state_dict(torch.load('checkpoint.pt'))
-#     remove('checkpoint.pt')
-#
-#     # plot
-#     if is_plot:
-#         fig = plt.figure(figsize=(10, 8))
-#         plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
-#         plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
-#
-#         # find position of lowest validation loss
-#         minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
-#         plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
-#
-#         plt.xlabel('epochs')
-#         plt.ylabel('loss')
-#         plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
-#         plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
-#         plt.grid(True)
-#         plt.legend()
-#         plt.tight_layout()
-#         plt.show()
-#         # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
-#
-#     return model
-#
-#
-# def train_lagrangian(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, delta_q, w_vec, is_plot=True):
-#     train_losses = []
-#     valid_losses = []  # to track the validation loss as the model trains
-#     avg_train_losses = []  # to track the average training loss per epoch as the model trains
-#     avg_valid_losses = []  # to track the average validation loss per epoch as the model trains
-#     for t in range(max_training_epoch):
-#         train_losses = []
-#         valid_losses = []
-#         for feature, target in train_loader:
-#             target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
-#             loss = loss_fn(target_hat, target)
-#             optimizer.zero_grad()  # clear gradients for next train
-#             loss.backward()  # backpropagation, compute gradients
-#             optimizer.step()  # apply gradients
-#             train_losses.append(loss.item())
-#         for feature, target in valid_loader:
-#             # forward pass: compute predicted outputs by passing inputs to the model
-#             target_hat = Lagrange_Net(model, feature, delta_q, w_vec, device='cpu')
-#             loss = loss_fn(target_hat, target)
-#             valid_losses.append(loss.item())
-#
-#         train_loss = np.average(train_losses)
-#         valid_loss = np.average(valid_losses)
-#         avg_train_losses.append(train_loss)
-#         avg_valid_losses.append(valid_loss)
-#         print('Epoch', t, ': Train Loss is ', train_loss, 'Validate Loss is', valid_loss)
-#
-#         early_stopping(valid_loss, model)
-#         if early_stopping.early_stop:
-#             print("Early stopping at Epoch")
-#             break
-#     model.load_state_dict(torch.load('checkpoint.pt'))
-#     remove('checkpoint.pt')
-#
-#     # plot
-#     if is_plot:
-#         fig = plt.figure(figsize=(10, 8))
-#         plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
-#         plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
-#
-#         # find position of lowest validation loss
-#         minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
-#         plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
-#
-#         plt.xlabel('epochs')
-#         plt.ylabel('loss')
-#         plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
-#         plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
-#         plt.grid(True)
-#         plt.legend()
-#         plt.tight_layout()
-#         plt.show()
-#         # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
-#
-#     return model
 
 
 def pretrain(model, train_loader, valid_loader, learning_rate, earlyStop_patience, max_training_epoch):
@@ -366,24 +247,3 @@ def pretrain(model, train_loader, valid_loader, learning_rate, earlyStop_patienc
     return model
 
 
-
-
-# def to_autoencoder(based_layer_list, train_layer_list):
-#     based_model = torch.nn.Sequential(*based_layer_list)
-#     for param in based_model.parameters():
-#         param.requires_grad = False
-#
-#     M, N = train_layer_list[0].shape
-#     train_layer_list = train_layer_list.append()
-#     based_model = torch.nn.Sequential(*based_layer_list)
-#
-#     # mark all first n-2 layer freeze
-#     count = 0
-#     for param in new_model.parameters():
-#         count += 1
-#         if count <= layer_number - 2:
-#             param.requires_grad = False
-#         else:
-#             param.requires_grad = True
-#
-#     return new_model
