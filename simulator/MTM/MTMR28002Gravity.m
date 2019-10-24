@@ -1,126 +1,11 @@
-% addpath('./model/CAD')
-
-% joint limits
-upper_limit = deg2rad([30,45,34,190,175,40]);
-lower_limit = deg2rad([-30,-14,-34,-80,-85,-40]);
-% coupling_index_list = {[2,3]};
-% coupling_upper_limit = [41];
-% coupling_lower_limit = [-11];
-
-sample_num_each_joint = 10;
-X1 = linspace(lower_limit(1), upper_limit(1), sample_num_each_joint);
-X2 = linspace(lower_limit(2), upper_limit(2), sample_num_each_joint);
-X3 = linspace(lower_limit(3), upper_limit(3), sample_num_each_joint);
-X4 = linspace(lower_limit(4), upper_limit(4), sample_num_each_joint);
-X5 = linspace(lower_limit(5), upper_limit(5), sample_num_each_joint);
-X6 = linspace(lower_limit(6), upper_limit(6), sample_num_each_joint);
-    
-input_mat = [];
-output_mat = [];
-dynamic_vec = CAD_dynamic_vec();
-count =0;
-for idx1 = 1:size(X1,2)
-    for idx2 = 1:size(X2,2)
-        for idx3 = 1:size(X3,2)
-            for idx4 = 1:size(X4,2)
-                for idx5 = 1:size(X5,2)
-                    for idx6 = 1:size(X6,2)
-                        input = [X1(idx1);X2(idx2);X3(idx3);X4(idx4);X5(idx5);X6(idx6)];
-                        output = CAD_analytical_regressor(9.81,input(1),input(2),input(3),input(4),input(5),input(6))*dynamic_vec;
-                        input_mat = [input_mat; input.'];
-                        output_mat = [output_mat; output.'];
-                    end
-                end
-            end
-            count = count +1;
-            file_name = sprintf('MTMR_CAD_sim_%d.mat', count);
-            save(fullfile('data' ,file_name), 'input_mat', 'output_mat')
-            input_mat = [];
-            output_mat = [];
-        end
-        fprintf('Pro = %d\n',idx2+idx1*size(X1,2))
-    end
+function torques = MTMR28002Gravity(q1,q2,q3,q4,q5,q6)
+    dynamic_vec = CAD_dynamic_vec();
+    torques = CAD_analytical_regressor(9.81,q2,q3,q4,q5,q6)*dynamic_vec;
 end
 
 
-% 
-% input_mat = gen_mat;
-% input_mat(7,:) =0.0;
-% 
-% g = 9.81;
-% input_mat = deg2rad(input_mat);
-% output_mat = zeros(size(input_mat));
-% for i = 1:size(input_mat,2)
-%     q1 = input_mat(1,i);
-%     q2 = input_mat(2,i);
-%     q3 = input_mat(3,i);
-%     q4 = input_mat(4,i);
-%     q5 = input_mat(5,i);
-%     q6 = input_mat(6,i);
-%     output_mat(:,i) = CAD_analytical_regressor(9.81, q1, q2, q3, q4, q5, q6)*CAD_dynamic_vec;
-%     if(mod(i,1000) == 0)
-%         fprintf('number of data: %d\n', i);
-%     end
-% end
-% 
-% % save('./data/CAD_sim_1e5/CAD_sim_1e5_pos','input_mat');
-% % save('./data/CAD_sim_1e5/CAD_sim_1e5_tor','output_mat');
-% 
-% function is_in_joint_space =  hw_joint_space_check(q, q_upper_limit, q_lower_limit, varargin)
-% 
-%     % function:
-%         % check if joint position,q, is within the joint space of hardware, which fullfill:
-%         %     q_lower_limit <= sum(q) <= q_upper_limit
-%         %     coupling_lower_limit <= sum(q_coupling) <= coupling_upper_limit  (if any)
-%     % arguments:
-%         % q: array of joint position 
-%         % q_upper_limit: upper limit for joint position
-%         % q_lower_limit: lower limit for joint position
-%         % coupling_index_list: cell list for index of coupling joint
-%         % coupling_upper_limit: arrary of coupling summation upper limit
-%         % coupling_lower_limit: arrary of coupling summation lower limit
-%         
-%     % example:
-%         % is_in_joint_space = hw_joint_space_check([0,2,3,0,0,0,0], [0,3,4,0,0,0,0],-1*ones(1,7),{[2,3]}, [6], [5])
-% 
-%     % input argument parser
-%    p = inputParser;
-%    is_array = @(x) size(x,1) == 1;
-%    addRequired(p, 'q', is_array);
-%    addRequired(p, 'q_upper_limit', is_array);
-%    addRequired(p, 'q_lower_limit', is_array);
-%    addOptional(p, 'coupling_index_list', {} , @iscell);
-%    addOptional(p, 'coupling_upper_limit', [] );
-%    addOptional(p, 'coupling_lower_limit', [] );
-%    parse(p,q, q_upper_limit, q_lower_limit,varargin{:});
-%    coupling_index_list =  p.Results.coupling_index_list;
-%    coupling_upper_limit =  p.Results.coupling_upper_limit;
-%    coupling_lower_limit =  p.Results.coupling_lower_limit;
-%    
-%     % q_lower_limit <= sum(q) <= q_upper_limit
-%    if all(q_upper_limit>=q) &&  all(q_lower_limit<=q)
-%        is_in_joint_space = true;
-%        % check coupling summation limit if exist
-%        if(~isempty(coupling_index_list))
-%            for j=1:size(coupling_index_list,2)
-%                q_coupling = q(coupling_index_list{j});
-%                % coupling_lower_limit <= sum(q_coupling) <= coupling_upper_limit
-%                if all(coupling_upper_limit(j)>=sum(q_coupling)) &&  all(coupling_lower_limit(j)<=sum(q_coupling))
-%                    is_in_joint_space =  true;
-%                else
-%                    is_in_joint_space =  false;
-%                    return;
-%                end
-%            end
-%        end
-%    else
-%        is_in_joint_space =  false;
-%        return;
-%    end
-% end
-% 
-% 
-function Regressor_Matrix = CAD_analytical_regressor(g,q1,q2,q3,q4,q5,q6)
+
+function Regressor_Matrix = CAD_analytical_regressor(g,q2,q3,q4,q5,q6)
     Regressor_Matrix = ...
     [         0,         0,                                     0,                                       0,                                                                                                                                      0,                                                                                                                                                                                                                                             0,                                                     0,                                                             0,                                                                                                                                      0,                                                                                                                                                                                                                                              0,             0, 0,  0, 0
      g*sin(q2), g*cos(q2), g*cos(q2)*cos(q3) - g*sin(q2)*sin(q3), - g*cos(q2)*sin(q3) - g*cos(q3)*sin(q2),          g*cos(q4)*sin(q2)*sin(q3)*sin(q5) - g*cos(q3)*cos(q5)*sin(q2) - g*cos(q2)*cos(q3)*cos(q4)*sin(q5) - g*cos(q2)*cos(q5)*sin(q3),         g*cos(q2)*cos(q3)*sin(q4)*sin(q6) + g*cos(q2)*cos(q6)*sin(q3)*sin(q5) + g*cos(q3)*cos(q6)*sin(q2)*sin(q5) - g*sin(q2)*sin(q3)*sin(q4)*sin(q6) + g*cos(q4)*cos(q5)*cos(q6)*sin(q2)*sin(q3) - g*cos(q2)*cos(q3)*cos(q4)*cos(q5)*cos(q6), g*cos(q2)*cos(q3)*cos(q4) - g*cos(q4)*sin(q2)*sin(q3),         g*sin(q2)*sin(q3)*sin(q4) - g*cos(q2)*cos(q3)*sin(q4),          g*cos(q2)*cos(q3)*cos(q4)*cos(q5) - g*cos(q3)*sin(q2)*sin(q5) - g*cos(q2)*sin(q3)*sin(q5) - g*cos(q4)*cos(q5)*sin(q2)*sin(q3),          g*cos(q2)*cos(q3)*cos(q6)*sin(q4) - g*cos(q6)*sin(q2)*sin(q3)*sin(q4) - g*cos(q2)*sin(q3)*sin(q5)*sin(q6) - g*cos(q3)*sin(q2)*sin(q5)*sin(q6) - g*cos(q4)*cos(q5)*sin(q2)*sin(q3)*sin(q6) + g*cos(q2)*cos(q3)*cos(q4)*cos(q5)*sin(q6),             0, 1,  0, 0
@@ -187,3 +72,4 @@ double(Parameter_matrix);
 
 dynamic_vec =  Parameter_matrix;
 end
+
