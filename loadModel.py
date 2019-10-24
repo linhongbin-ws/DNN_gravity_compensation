@@ -13,10 +13,10 @@ def get_model(robot, use_net, D, device='cpu'):
             model = SigmoidNet(D, 100, D).to(device)
         elif use_net == 'Multi_SinNet':
             model = Multi_SinNet(D, 100, D).to(device)
-        elif use_net == 'VanillaPolyNet':
-            base_model = SinNet(D, 100, D).to(device)
-            additon_modelPos = PolNet(D, 4).to(device)
-            additon_modelNeg = PolNet(D, 4).to(device)
+        elif use_net == 'Dual_Vanilla_SinSigmoidNet':
+            base_model = SinNet(D, 400, D).to(device)
+            additon_modelPos = SigmoidNet(D, 12, D).to(device)
+            additon_modelNeg = SigmoidNet(D, 12, D).to(device)
             modelPos = VanillaNet(base_model, additon_modelPos)
             modelNeg = VanillaNet(base_model, additon_modelNeg)
             model = [modelPos, modelNeg]

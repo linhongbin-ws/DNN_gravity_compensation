@@ -25,7 +25,7 @@ def predictList(modelList, input_mat, input_scalerList, output_scalerList):
 
 
 
-def testList(modelList, test_data_path, input_scalerList, output_scalerList, device, verbose=True):
+def evaluate_rms_list(modelList, test_data_path, input_scalerList, output_scalerList, device, verbose=True):
     # test model
     test_dataset = load_data_dir(test_data_path, device=device, is_scale=False)
     feature = test_dataset.x_data

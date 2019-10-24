@@ -87,6 +87,54 @@ def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None,
         output_scaler = train_dataset.output_scaler
     return train_loader, valid_loader, input_scaler, output_scaler
 
+def load_train_N_validate_data_list(train_data_dir_list, batch_size, valid_data_path_list=None, valid_ratio=0.2,device='cpu'):
+    train_loaderList = []
+    valid_loaderList = []
+    input_scalerList = []
+    output_scalerList = []
+    if valid_data_path_list == None:
+        for i in range(len(train_data_dir_list)):
+            full_dataset = load_data_dir(train_data_dir_list[i], device)
+            train_ratio = 1 - valid_ratio
+            train_size = int(full_dataset.__len__() * train_ratio)
+            test_size = full_dataset.__len__() - train_size
+            train_dataset, validate_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
+            train_loader = DataLoader(train_dataset,
+                                      batch_size=batch_size,
+                                      num_workers=0,
+                                      shuffle=True
+                                      )
+            valid_loader = DataLoader(validate_dataset,
+                                      batch_size=batch_size,
+                                      num_workers=0,
+                                      shuffle=True)
+            train_loaderList.append(train_loader)
+            valid_loaderList.append(valid_loader)
+            input_scalerList.append(full_dataset.input_scaler)
+            output_scalerList.append(full_dataset.output_scaler)
+    else:
+        for i in range(len(train_data_dir_list)):
+            train_dataset = load_data_dir(train_data_dir_list[i], device)
+
+            train_loader = DataLoader(train_dataset,
+                                      batch_size=batch_size,
+                                      num_workers=0,
+                                      shuffle=True
+                                      )
+            train_loaderList.append(train_loader)
+
+            input_scalerList.append(train_dataset.input_scaler)
+            output_scalerList.append(train_dataset.output_scaler)
+
+        for i in range(len(valid_data_path_list)):
+            valid_dataset = load_data_dir(valid_data_path_list[i], device)
+            valid_loader = DataLoader(valid_dataset,
+                                      batch_size=batch_size,
+                                      num_workers=0,
+                                      shuffle=True)
+            valid_loaderList.append(valid_loader)
+    return train_loaderList, valid_loaderList, input_scalerList, output_scalerList
+
 def load_train_data(data_dir, valid_ratio, batch_size, device):
     full_dataset = load_data_dir(data_dir, device)
     train_ratio = 1 - valid_ratio

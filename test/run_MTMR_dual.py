@@ -74,7 +74,7 @@ def loop_func(use_net):
     # print(input_scalerList)
 
 #loop_func('N8_std1','Lagrangian_SinNet')
-loop_func('VanillaPolyNet')
+loop_func('Dual_Vanilla_SinSigmoidNet')
 
 
 # test
