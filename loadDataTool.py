@@ -52,6 +52,41 @@ def load_data_dir(data_dir, device, is_scale=True):
     full_dataset = MTMDataset(data_list, device=device, is_scale=is_scale)
     return full_dataset
 
+def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None, valid_ratio=0.2,device='cpu'):
+    if valid_data_path == None:
+        full_dataset = load_data_dir(train_data_dir, device)
+        train_ratio = 1 - valid_ratio
+        train_size = int(full_dataset.__len__() * train_ratio)
+        test_size = full_dataset.__len__() - train_size
+        train_dataset, validate_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True
+                                  )
+        valid_loader = DataLoader(validate_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True)
+        input_scaler = full_dataset.input_scaler
+        output_scaler = full_dataset.output_scaler
+
+    else:
+        train_dataset = load_data_dir(train_data_dir, device)
+        valid_dataset = load_data_dir(valid_data_path, device)
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True
+                                  )
+        valid_loader = DataLoader(valid_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True)
+        input_scaler = train_dataset.input_scaler
+        output_scaler = train_dataset.output_scaler
+    return train_loader, valid_loader, input_scaler, output_scaler
+
 def load_train_data(data_dir, valid_ratio, batch_size, device):
     full_dataset = load_data_dir(data_dir, device)
     train_ratio = 1 - valid_ratio

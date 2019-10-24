@@ -1,13 +1,13 @@
 from regularizeTool import EarlyStopping
 from trainTool import train
-from loadDataTool import load_train_data
+from loadDataTool import load_train_N_validate_data
 from os.path import join
 from evaluateTool import *
 import scipy.io as sio
 from os import mkdir
 from loadModel import get_model
 
-def loop_func(train_data_path, test_data_path, use_net):
+def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     # config hyper-parameters
     max_training_epoch = 2000 # stop train when reach maximum training epoch
     goal_loss = 1e-4 # stop train when reach goal loss
@@ -26,10 +26,13 @@ def loop_func(train_data_path, test_data_path, use_net):
         learning_rate = 0.1
 
 
-    train_loader, valid_loader, input_scaler, output_scaler, input_dim, output_dim = load_train_data(data_dir=join(train_data_path, "data"),
-                                                                                                     valid_ratio=valid_ratio,
-                                                                                                     batch_size=batch_size,
-                                                                                                     device=device)
+    # train_loader, valid_loader, input_scaler, output_scaler, = load_train_N_validate_data(join(train_data_path, "data"),
+    #                                                                                       batch_size, valid_data_path=None, valid_ratio=valid_ratio, device=device)
+    train_loader, valid_loader, input_scaler, output_scaler, = load_train_N_validate_data(join(train_data_path, "data"),
+                                                                                          batch_size,
+                                                                                          valid_data_path=join(valid_data_path, "data"),
+                                                                                          device=device)
+
     loss_fn = torch.nn.SmoothL1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
@@ -58,6 +61,8 @@ def loop_func(train_data_path, test_data_path, use_net):
                                   'train_input_mat': train_input_mat.numpy(),
                                   'train_output_mat': train_output_mat.numpy()})
 
+    test_loss, abs_rms_vec, rel_rms_vec = evaluate_rms(model, loss_fn, test_data_path, input_scaler, output_scaler, device, verbose=True)
+
 
 ################################################################################################################
 
@@ -69,10 +74,13 @@ train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 
 
-for use_net in use_net_list:
-    train_data_path = join("data", "MTMR_28002", "real", "uniform","D5N5","dual")
-    test_data_path = join("data", "MTMR_28002", "real", "random","D5N10")
-    loop_func(train_data_path, test_data_path, use_net)
+# for use_net in use_net_list:
+#     train_data_path = join("data", "MTMR_28002", "real", "uniform","D5N5","dual")
+#     test_data_path = join("data", "MTMR_28002", "real", "random","D5N10")
+#     loop_func(train_data_path, test_data_path, use_net)
 
 # test
-#loop_func('N8_std1', 'Lagrangian_SinNet')
+train_data_path = join("data", "MTMR_28002", "real", "uniform", "D5N5", "dual")
+test_data_path = join("data", "MTMR_28002", "real", "random", "D5N10")
+valid_data_path = join("data", "MTMR_28002", "real", "random", "D5N319")
+loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')

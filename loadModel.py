@@ -55,6 +55,14 @@ def get_model(robot, use_net, D, device='cpu'):
             w_list = [1, 1]
             w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
             model = LagrangeNet(base_model, delta_q, w_vec)
+        elif use_net == 'VanillaSinPol_Net':
+            base_model = SinNet(D, 100, D).to(device)
+            additon_model = PolNet(2, 4).to(device)
+            model = VanillaNet(base_model, additon_model)
+        elif use_net == 'VanillaSinSigmoid_Net':
+            base_model = SinNet(D, 100, D).to(device)
+            additon_model = SigmoidNet(D, 10, D).to(device)
+            model = VanillaNet(base_model, additon_model)
         else:
             raise Exception(use_net + 'is not support')
     else:
