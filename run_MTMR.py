@@ -116,10 +116,10 @@ def loop_func(train_file, use_net):
 
     test_loss, abs_rms_vec, rel_rms_vec = test('Base', model, loss_fn, test_data_path, input_scaler, output_scaler, 'cpu')
 
-    # save model
-    # torch.save(model.state_dict(), pjoin('model','LogNet',model_file_name+'.pt'))
-    # with open(pjoin('model','LogNet',model_file_name+'.pkl'), 'wb') as fid:
-    #     cPickle.dump(output_scaler, fid)
+
+
+
+
 
 #train_file_list = ['N5_std1', 'N5_std5', 'N5_std9','N8_std1', 'N8_std5', 'N8_std9','N15_std1', 'N15_std5', 'N15_std9']
 #train_file_list = ['N3_std5', 'N5_std5','N7_std5','N8_std5','N10_std5','N12_std5','N15_std5','N17_std5','N20_std5']

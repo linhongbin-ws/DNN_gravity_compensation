@@ -3,7 +3,8 @@ import numpy as np
 from os import path, mkdir
 import torch
 def get_model(robot, use_net, D, device='cpu'):
-    if robot=='MTM':
+    # define net for MTM
+    if robot == 'MTM':
         if use_net == 'SinNet':
             model = SinNet(D, 100, D).to(device)
         elif use_net == 'ReLuNet':
@@ -27,14 +28,38 @@ def get_model(robot, use_net, D, device='cpu'):
             modelNeg = VanillaNet(base_model, additon_modelNeg)
             model = [modelPos, modelNeg]
         elif use_net == 'Lagrangian_SinNet':
-            model = SigmoidNet(D, 300, 1).to(device)
+            base_model = SinNet(D, 300, 1).to(device)
+            delta_q = 1e-2
+            w_list = [1, 1, 3, 3, 3]
+            w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
+            model = LagrangeNet(base_model, delta_q, w_vec)
+        else:
+            raise Exception(use_net + 'is not support')
+    ### define net for acrobot
+    elif robot == 'Acrobot':
+        if use_net == 'SinNet':
+            model = SinNet(D, 100, D).to(device)
+        elif use_net == 'ReLuNet':
+            model = ReLuNet(D, [100], D).to(device)
+        elif use_net == 'SigmoidNet':
+            model = SigmoidNet(D, 100, D).to(device)
+        elif use_net == 'Multi_SinNet':
+            model = Multi_SinNet(D, 100, D).to(device)
+        elif use_net == 'VanillaNet':
+            base_model = SinNet(D, 100, D).to(device)
+            additon_model = PolNet(2, 4).to(device)
+            model = VanillaNet(base_model, additon_model)
+        elif use_net == 'Lagrangian_SinNet':
+            base_model = SinNet(D, 300, 1).to(device)
             delta_q = 1e-2
             w_list = [1, 1]
             w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
+            model = LagrangeNet(base_model, delta_q, w_vec)
         else:
             raise Exception(use_net + 'is not support')
     else:
         raise Exception(robot + 'is not support')
+
 
     return model
 

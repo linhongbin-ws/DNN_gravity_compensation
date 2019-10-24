@@ -17,9 +17,9 @@ def loop_func(train_data_path, test_data_path, use_net):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     earlyStop_patience = 30
     learning_rate = 0.1
-    D = 2
+    D = 5
 
-    model = get_model('Acrobot', use_net, D, device=device)
+    model = get_model('MTM', use_net, D, device=device)
 
     if use_net == 'Lagrangian_SinNet':
         earlyStop_patience = 80
@@ -68,11 +68,11 @@ train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 
 use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 
-for train_file in train_file_list:
-    for use_net in use_net_list:
-        train_data_path = join("data", "Acrobot", "sim", train_file)
-        test_data_path = join("data", "Acrobot", "sim", "N34_std0")
-        loop_func(train_data_path, test_data_path, use_net)
+
+for use_net in use_net_list:
+    train_data_path = join("data", "MTMR_28002", "real", "uniform","D5N5","dual")
+    test_data_path = join("data", "MTMR_28002", "real", "random","D5N10")
+    loop_func(train_data_path, test_data_path, use_net)
 
 # test
 #loop_func('N8_std1', 'Lagrangian_SinNet')
