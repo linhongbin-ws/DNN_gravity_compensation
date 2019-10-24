@@ -1,9 +1,11 @@
-net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat','SinNet.mat'}
-legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net','Dynamic Model', 'Sin Net'}
+net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','dynamic_model.mat','SinNet.mat','VanillaSinSigmoid_Net.mat'}
+legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net','Dynamic Model', 'Sin Net','Vanilla-Sin-Sigmoid Net'}
+% net_list = {'ReLuNet.mat','SigmoidNet.mat','Lagrangian_SinNet.mat','SinNet.mat'}
+% legend_list = {'ReLu Net','Sigmoid Net','Lagrangian-Sin Net', 'Sin Net'}
 % N_arr = [5,8,15];
 % std_arr = [1, 5, 9];
 N_arr = [2,3,4,5,6,7,8,9,10,12,15,17,20];
-std_arr = [9];
+std_arr = [1];
 
 result_list ={};
 for j=1:size(std_arr,2)
@@ -59,7 +61,7 @@ function rel_rms_vec = cal_rms(load_file)
     for i=1:size(test_input_mat,1)
         q1 = test_input_mat(i,1);
         q2 = test_input_mat(i,2);
-        G = Acrobot_gravity(q1, q2);
+        G = Acrobot_dynamics(q1, q2, [0,0], true);
         target_mat = [target_mat;G.'];
     end
     rel_rms = sqrt(sum((test_output_mat-target_mat).^2)./sum((target_mat).^2));

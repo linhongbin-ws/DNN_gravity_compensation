@@ -8,12 +8,11 @@ Z1_noise = zeros(size(X));
 Z2_noise = zeros(size(X));
 for i = 1:size(X,1)
     for j = 1:size(X,2)
-        G = Acrobot_gravity(X(i,j), Y(i,j), 0,0);
-        G_noise = Acrobot_gravity(X(i,j), Y(i,j), 0,0);
+        G = Acrobot_dynamics(X(i,j), Y(i,j), [0,0], false);
         Z1(i,j) = G(1);
         Z2(i,j) = G(2);
-        Z1_noise(i,j) = G_noise(1);
-        Z2_noise(i,j) = G_noise(2);
+        Z1_noise(i,j) = G(1);
+        Z2_noise(i,j) = G(2);
     end
 end
 figure(1)

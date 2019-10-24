@@ -1,7 +1,7 @@
 % N_arr = [5, 8, 15];
 % std_arr = [1, 5, 9];
 N_arr = [2,3,4,5,6,7,8,9,10,12,15,17,20];
-std_arr = [9];
+std_arr = [1];
 
 for j=1:size(std_arr,2)
 for i=1:size(N_arr,2)
