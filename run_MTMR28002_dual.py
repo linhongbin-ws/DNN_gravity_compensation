@@ -15,8 +15,8 @@ def loop_func(train_data_path_list, valid_data_path_list, test_data_path, use_ne
     batch_size = 256 # batch size for mini-batch gradient descent
     weight_decay = 1e-4
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    earlyStop_patience = 50
-    learning_rate = 0.05
+    earlyStop_patience = 80
+    learning_rate = 0.02
     D = 5
 
     model_list = get_model('MTM', use_net, D, device=device)

@@ -14,13 +14,13 @@ MTM_ARM = 'MTMR'
 pub_topic = '/dvrk/' + MTM_ARM + '/set_effort_joint'
 sub_topic = '/dvrk/' + MTM_ARM + '/state_joint_current'
 train_data_path = join("data", "MTMR_28002",'real', 'uniform', 'D5N5','')
-use_net = 'VanillaPolyNet'
+use_net = 'Dual_Vanilla_SinSigmoidNet'
 D = 5
 device = 'cpu'
 
 modelList = get_model('MTM', use_net, D, device=device)
 
-modelList, input_scalerList, output_scalerList = load_model('.','test_dualController',modelList)
+modelList, input_scalerList, output_scalerList = load_model('.','test_Controller_list',modelList)
 
 for model in modelList:
     model = model.to('cpu')
@@ -35,8 +35,8 @@ count = 0
 def callback(data):
     global use_net
     global D
-    global input_scaler
-    global output_scaler
+    global input_scalerList
+    global output_scalerList
     global pub
     global count
 
@@ -79,7 +79,7 @@ def callback(data):
     msg.effort.append(output_arr[4])
     msg.effort.append(0)
 
-  #  pub.publish(msg)
+    pub.publish(msg)
     elapsed = time.clock()
     elapsed = elapsed - start
     #print "Time spent in (function name) is: ", elapsed
