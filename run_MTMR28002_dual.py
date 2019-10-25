@@ -87,15 +87,15 @@ use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 #     loop_func(train_data_path, test_data_path, use_net)
 
 # test
-train_pos_data_path = join("data", "MTMR_28002", "real", "uniform", "D5N5", "pos")
-train_neg_data_path = join("data", "MTMR_28002", "real", "uniform", "D5N5", "neg")
+train_pos_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "pos")
+train_neg_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "neg")
 train_data_path_list = [train_pos_data_path, train_neg_data_path]
 
-valid_pos_data_path = join("data", "MTMR_28002", "real", "random", "D5N319")
-valid_neg_data_path = join("data", "MTMR_28002", "real", "random", "D5N319")
+valid_pos_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "pos")
+valid_neg_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "neg")
 valid_data_path_list = [valid_pos_data_path, valid_neg_data_path]
 
-test_data_path = join("data", "MTMR_28002", "real", "random", "D5N10")
+test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
 
 loop_func(train_data_path_list, valid_data_path_list, test_data_path, 'Dual_Vanilla_SinSigmoidNet')
 

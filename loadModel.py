@@ -7,6 +7,14 @@ def get_model(robot, use_net, D, device='cpu'):
     if robot == 'MTM':
         if use_net == 'SinNet':
             model = SinNet(D, 400, D).to(device)
+        elif use_net == 'VanillaSin_SigmoidNet':
+            base_model = SinNet(D, 400, D).to(device)
+            additon_model = SigmoidNet(D, 30, D).to(device)
+            model = VanillaNet(base_model, additon_model)
+        elif use_net == 'VanillaSin_ReluNet':
+            base_model = SinNet(D, 400, D).to(device)
+            additon_model = ReLuNet(D, [100], D).to(device)
+            model = VanillaNet(base_model, additon_model)
         elif use_net == 'ReLuNet':
             model = ReLuNet(D, [100], D).to(device)
         elif use_net == 'SigmoidNet':
@@ -14,11 +22,15 @@ def get_model(robot, use_net, D, device='cpu'):
         elif use_net == 'Multi_SinNet':
             model = Multi_SinNet(D, 100, D).to(device)
         elif use_net == 'Dual_Vanilla_SinSigmoidNet':
-            base_model = SinNet(D, 400, D).to(device)
-            additon_modelPos = SigmoidNet(D, 12, D).to(device)
-            additon_modelNeg = SigmoidNet(D, 12, D).to(device)
+            base_model = SinNet(D, 500, D).to(device)
+            additon_modelPos = SigmoidNet(D, 20, D).to(device)
+            additon_modelNeg = SigmoidNet(D, 20, D).to(device)
             modelPos = VanillaNet(base_model, additon_modelPos)
             modelNeg = VanillaNet(base_model, additon_modelNeg)
+            model = [modelPos, modelNeg]
+        elif use_net == 'Dual_SinNet':
+            modelPos = SinNet(D, 500, D).to(device)
+            modelNeg = SinNet(D, 500, D).to(device)
             model = [modelPos, modelNeg]
         elif use_net == 'VanillaBPNet':
             base_model = SinNet(D, 100, D).to(device)

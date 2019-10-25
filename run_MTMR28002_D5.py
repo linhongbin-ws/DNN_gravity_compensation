@@ -15,8 +15,8 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     batch_size = 256 # batch size for mini-batch gradient descent
     weight_decay = 1e-4
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    earlyStop_patience = 30
-    learning_rate = 0.1
+    earlyStop_patience = 60
+    learning_rate = 0.06
     D = 5
 
     model = get_model('MTM', use_net, D, device=device)
@@ -82,8 +82,8 @@ use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 #     loop_func(train_data_path, test_data_path, use_net)
 
 # test
-train_data_path = join("data", "MTMR_28002", "real", "uniform", "D5N5", "dual")
-test_data_path = join("data", "MTMR_28002", "real", "random", "D5N10")
-valid_data_path = join("data", "MTMR_28002", "real", "random", "D5N319")
-loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
+train_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "dual")
+valid_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "dual")
+test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
+loop_func(train_data_path, valid_data_path, test_data_path, 'VanillaSin_ReluNet')
 

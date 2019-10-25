@@ -99,14 +99,11 @@ def multiTask_train(modelList, train_loaderList, valid_loaderList, optimizer, lo
             for feature, target in train_loaderList[i]:
                 model = modelList[i]
                 target_hat = model(feature)
-                if isinstance(loss, list):
-                    loss = loss_fn(target_hat, target)
-                else:
-                    loss = loss_fn(target_hat, target) + loss
-        optimizer.zero_grad()  # clear gradients for next train
-        loss.backward()  # backpropagation, compute gradients
-        optimizer.step()  # apply gradients
-        train_losses.append(loss.item())
+                loss = loss_fn(target_hat, target)
+                optimizer.zero_grad()  # clear gradients for next train
+                loss.backward()  # backpropagation, compute gradients
+                optimizer.step()  # apply gradients
+                train_losses.append(loss.item())
 
         for i in range(task_num):
             for feature, target in valid_loaderList[i]:
