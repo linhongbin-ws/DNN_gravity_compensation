@@ -75,6 +75,8 @@ def get_model(robot, use_net, D, device='cpu'):
             base_model = SinNet(D, 100, D).to(device)
             additon_model = SigmoidNet(D, 10, D).to(device)
             model = VanillaNet(base_model, additon_model)
+        elif use_net == 'SinLogNet':
+            model = SinLogNet(D, 100, D).to(device)
         else:
             raise Exception(use_net + 'is not support')
     else:
