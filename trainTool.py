@@ -2,6 +2,11 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from os import remove
+import platform
+if platform.system()=='Darwin':
+    import matplotlib
+    matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 from regularizeTool import EarlyStopping
 # from Net import Lagrange_Net

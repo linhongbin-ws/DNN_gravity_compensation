@@ -82,6 +82,24 @@ class LogNet(torch.nn.Module):
         y_pred = self._output_linear(h)
         return y_pred
 
+class SinLogNet(torch.nn.Module):
+    def __init__(self, D_in, H, D_out):
+        super(SinLogNet, self).__init__()
+        self._input_linear = torch.nn.Linear(D_in, H)
+        self._output_linear = torch.nn.Linear(H, D_out)
+        self._epsilon = 0.003
+        self.bias = torch.nn.Parameter(torch.randn(1, D_in))
+
+    def forward(self, x):
+        h = x + self.bias
+        h1 = torch.sin(h)
+        h = h.clamp(self._epsilon)
+        h = torch.log(h)
+        h = self._input_linear(h)
+        h = torch.exp(h)
+        y_pred = self._output_linear(h)
+        return y_pred
+
 # create Net architecture
 class BPNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):

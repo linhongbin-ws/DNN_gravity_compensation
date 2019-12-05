@@ -65,14 +65,16 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
 ################################################################################################################
 
 
-N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
+#N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
+N_list = [20]
 std = 1
 train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 
-use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet', 'VanillaSinSigmoid_Net']
+# use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet', 'VanillaSinSigmoid_Net','SinLogNet']
 # use_net_list = ['VanillaSinSigmoid_Net']
+use_net_list = ['SinLogNet']
 
-is_disturb = True
+is_disturb = False
 if is_disturb:
     disturb_dir = 'withDisturb'
 else:
