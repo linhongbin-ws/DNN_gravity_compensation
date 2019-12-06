@@ -41,7 +41,7 @@ def train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping,
             target_hat = model(feature)
             loss = loss_fn(target_hat, target)
             optimizer.zero_grad()  # clear gradients for next train
-            loss.backward()  # backpropagation, compute gradients
+            loss.backward(retain_graph=True)  # backpropagation, compute gradients
             optimizer.step()  # apply gradients
             train_losses.append(loss.item())
         for feature, target in valid_loader:

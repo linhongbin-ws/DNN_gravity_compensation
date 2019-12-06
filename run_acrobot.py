@@ -72,7 +72,7 @@ train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
 
 # use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet', 'VanillaSinSigmoid_Net','SinLogNet']
 # use_net_list = ['VanillaSinSigmoid_Net']
-use_net_list = ['SinLogNet']
+use_net_list = ['Lagrangian_SinNet']
 
 is_disturb = False
 if is_disturb:

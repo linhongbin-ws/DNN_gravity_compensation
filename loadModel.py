@@ -41,10 +41,10 @@ def get_model(robot, use_net, D, device='cpu'):
             model = [modelPos, modelNeg]
         elif use_net == 'Lagrangian_SinNet':
             base_model = SinNet(D, 300, 1).to(device)
-            delta_q = 1e-2
-            w_list = [1, 1, 3, 3, 3]
-            w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
-            model = LagrangeNet(base_model, delta_q, w_vec)
+            # delta_q = 1e-2
+            # w_list = [1, 1, 3, 3, 3]
+            # w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
+            model = LagrangeNet(base_model)
         else:
             raise Exception(use_net + 'is not support')
     ### define net for acrobot
@@ -63,10 +63,10 @@ def get_model(robot, use_net, D, device='cpu'):
             model = VanillaNet(base_model, additon_model)
         elif use_net == 'Lagrangian_SinNet':
             base_model = SinNet(D, 300, 1).to(device)
-            delta_q = 1e-2
-            w_list = [1, 1]
-            w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
-            model = LagrangeNet(base_model, delta_q, w_vec)
+            # delta_q = 1e-2
+            # w_list = [1, 1]
+            # w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
+            model = LagrangeNet(base_model)
         elif use_net == 'VanillaSinPol_Net':
             base_model = SinNet(D, 100, D).to(device)
             additon_model = PolNet(2, 4).to(device)
