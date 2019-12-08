@@ -55,13 +55,9 @@ class LagrangeNet(torch.nn.Module):
         self.device = device
     def forward(self, feature):
         feature.requires_grad_(True)
-        target_hat = torch.zeros(feature.shape, dtype=torch.float32, device=self.device,requires_grad=True)
         base_hat = self.base_model(feature)
-        for i in range(base_hat.shape[0]):
-            self.base_model.zero_grad()
-            base_hat[i][0].backward(retain_graph=True)
-            for j in range(target_hat.shape[1]):
-                target_hat[i][j] = feature.grad[i][j].clone()
+        target_hat = torch.autograd.grad(outputs=base_hat, inputs=feature, grad_outputs=torch.ones(base_hat.shape), retain_graph=True,
+                                      create_graph=True)[0]
         return target_hat
 
 # def Lagrange_Net(model, feature, delta_q, w_vec, device='cpu'):

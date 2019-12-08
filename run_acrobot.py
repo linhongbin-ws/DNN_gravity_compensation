@@ -22,7 +22,7 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     model = get_model('Acrobot', use_net, D, device=device)
 
     if use_net == 'Lagrangian_SinNet':
-        earlyStop_patience = 50
+        earlyStop_patience = 30
         learning_rate = 0.1
 
 
