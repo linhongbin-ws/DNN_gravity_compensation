@@ -63,17 +63,23 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
 
     test_loss, abs_rms_vec, rel_rms_vec = evaluate_rms(model, loss_fn, test_data_path, input_scaler, output_scaler, device, verbose=True)
 
-    save_model('.', 'test_Controller', model, input_scaler, output_scaler)
+    # save model to "result/model" folder
+    model_save_path = join(train_data_path,"result","model")
+    try:
+        mkdir(model_save_path)
+    except:
+        print('Make directory: ', model_save_path + " already exist")
+    save_model(model_save_path, use_net, model, input_scaler, output_scaler)
 
 
 ################################################################################################################
 
 
-N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
-std = 1
-train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
-
-use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
+# N_list = [2,3,4,5,6,7,8,9,10,12,15,17,20]
+# std = 1
+# train_file_list = ['N'+str(i)+'_std'+str(std) for i in N_list]
+#
+# use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 
 
 # for use_net in use_net_list:
@@ -85,5 +91,5 @@ use_net_list = ['SinNet', 'ReLuNet', 'SigmoidNet','Lagrangian_SinNet']
 train_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "dual")
 valid_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "dual")
 test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
-loop_func(train_data_path, valid_data_path, test_data_path, 'VanillaSin_ReluNet')
+loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
 

@@ -3,12 +3,19 @@ from loadDataTool import load_data_dir
 import numpy as np
 
 
-def predict(model, input_mat, input_scaler, output_scaler, delta_q=None, w_vec=None):
+def predict(model, input_mat, input_scaler, output_scaler):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
     target_norm_hat = model(feature_norm)
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
+
+# predict from numpy input to numpy output
+def predictNP(model, input_mat, input_scaler, output_scaler):
+    feature_norm = torch.from_numpy(input_scaler.transform(input_mat)).to('cpu').float()
+    target_norm_hat = model(feature_norm)
+    target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+    return target_hat_mat
 
 def predictList(modelList, input_mat, input_scalerList, output_scalerList):
     target_hat = []
