@@ -16,7 +16,7 @@ def get_model(robot, use_net, D, device='cpu'):
             additon_model = ReLuNet(D, [100], D).to(device)
             model = VanillaNet(base_model, additon_model)
         elif use_net == 'ReLuNet':
-            model = ReLuNet(D, [100], D).to(device)
+            model = ReLuNet(D, [30,30,30], D).to(device)
         elif use_net == 'SigmoidNet':
             model = SigmoidNet(D, 100, D).to(device)
         elif use_net == 'Multi_SinNet':

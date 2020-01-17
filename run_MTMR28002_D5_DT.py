@@ -1,11 +1,12 @@
 from regularizeTool import EarlyStopping
-from trainTool import train
-from loadDataTool import load_train_N_validate_data
+from trainTool import KDtrain
+from loadDataTool import load_train_N_validate_data, load_teacher_train_data
 from os.path import join
 from evaluateTool import *
 import scipy.io as sio
 from os import mkdir
 from loadModel import get_model, save_model
+from AnalyticalModel import *
 
 def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     # config hyper-parameters
@@ -18,6 +19,12 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     earlyStop_patience = 60
     learning_rate = 0.06
     D = 5
+    teacher_sample_num = 30000
+    initLamda = 5
+    endLamda = 0.01
+    decaySteps = 100
+
+    teacherModelType = 'MTM_MLSE4POL'
 
     model = get_model('MTM', use_net, D, device=device)
 
@@ -33,12 +40,20 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
                                                                                           valid_data_path=join(valid_data_path, "data"),
                                                                                           device=device)
 
+    if teacherModelType == 'MTM_MLSE4POL':
+        teacherModel = MTM_MLSE4POL()
+
+    Teacher_trainLoader = load_teacher_train_data(teacherModel, input_scaler, output_scaler, teacher_sample_num, batch_size, device)
+
+    # create train_loader from teacher model
+
+
     loss_fn = torch.nn.SmoothL1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 
     ### Train model
-    model = train(model, train_loader, valid_loader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, is_plot=False)
+    model = KDtrain(model, train_loader, valid_loader, Teacher_trainLoader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, initLamda, endLamda, decaySteps, is_plot=False)
 
     ### Get the predict output from test data and save to Matlab file
     train_dataset = load_data_dir(join(train_data_path,'data'), device='cpu', is_scale=False)
@@ -69,7 +84,7 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
         mkdir(model_save_path)
     except:
         print('Make directory: ', model_save_path + " already exist")
-    save_model(model_save_path, use_net, model, input_scaler, output_scaler)
+    save_model(model_save_path, use_net+'_KD_MLSE4POL', model, input_scaler, output_scaler)
 
 
 ################################################################################################################
@@ -91,5 +106,5 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
 train_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "dual")
 valid_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "dual")
 test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
-loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
-
+# loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
+loop_func(train_data_path, valid_data_path, test_data_path, 'ReLuNet')

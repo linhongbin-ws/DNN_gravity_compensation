@@ -23,15 +23,18 @@ test_input_mat = test_dataset.x_data.numpy()
 test_ouput_mat = test_dataset.y_data.numpy()
 
 test_output_hat_mat_List = []
+legend_list = []
 
 
 # get predict CAD Model output
 MTM_CAD_model = MTM_CAD()
 test_output_hat_mat_List.append(MTM_CAD_model.predict(test_input_mat))
+legend_list.append('CAD')
 
 # get predict MLSE4POL Model output
 MTM_MLSE4POL_Model = MTM_MLSE4POL()
 test_output_hat_mat_List.append(MTM_MLSE4POL_Model.predict(test_input_mat))
+legend_list.append('MLSE4POL')
 
 
 
@@ -43,6 +46,28 @@ load_model_path = join(train_data_path, "result", "model")
 DNN_model = get_model('MTM', use_net, D, device=device)
 DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net, DNN_model)
 test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler, DNN_OScaler))
+legend_list.append('SinNet')
+
+# get predict DNN with Knowledge Distillation output
+use_net = 'SinNet'
+device = 'cpu'
+D = 5
+load_model_path = join(train_data_path, "result", "model")
+DNN_model = get_model('MTM', use_net, D, device=device)
+DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_KD_MLSE4POL', DNN_model)
+test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler, DNN_OScaler))
+legend_list.append('SinNet with KD from MLSE4POL')
+
+# get predict DNN with Knowledge Distillation output
+use_net = 'ReLuNet'
+device = 'cpu'
+D = 5
+load_model_path = join(train_data_path, "result", "model")
+DNN_model = get_model('MTM', use_net, D, device=device)
+DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_KD_MLSE4POL', DNN_model)
+test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler, DNN_OScaler))
+legend_list.append('ReLuNet with KD from MLSE4POL')
+
 
 # plot predict error bar figures
 mean_list = []
@@ -61,11 +86,11 @@ jnt_index = np.arange(2,7)
 
 
 fig, ax = plt.subplots()
-w = 0.2
-space = 0.2
-ax.bar(jnt_index-space, mean_list[0], yerr=std_list[0],  width=w,align='center', alpha=0.5, ecolor='black', capsize=10, label='CAD')
-ax.bar(jnt_index, mean_list[1], yerr=std_list[1],  width=w,align='center', alpha=0.5, ecolor='black', capsize=10, label='MLSE4POL')
-ax.bar(jnt_index+space, mean_list[2], yerr=std_list[2],  width=w,align='center', alpha=0.5, ecolor='black', capsize=10, label='DNN')
+w = 0.1
+space = 0.1
+capsize = 2
+for i in range(len(mean_list)):
+    ax.bar(jnt_index+space*(i-1), mean_list[i], yerr=std_list[i],  width=w,align='center', alpha=0.5, ecolor='black', capsize=capsize, label=legend_list[i])
 ax.set_ylabel(r'$|\tau_{e}|$')
 ax.set_xticks(jnt_index)
 ax.set_xticklabels(['Joint '+str(i) for i in jnt_index.tolist()])

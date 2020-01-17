@@ -40,6 +40,25 @@ class MTMDataset(Dataset):
     def __len__(self):
         return self.len
 
+class NumpyDataSet(Dataset):
+    def __init__(self, input_mat, output_mat, device):
+        # numpy to torch tensor
+        self.x_data = torch.from_numpy(input_mat).to(device).float()
+        self.y_data = torch.from_numpy(output_mat).to(device).float()
+
+        # get length of pair CAD_sim_1e6
+        self.len = self.x_data.shape[0]
+
+        # get dimension of input and output CAD_sim_1e6
+        self.input_dim = input_mat.shape[1]
+        self.output_dim = output_mat.shape[1]
+
+    def __getitem__(self, index):
+        return self.x_data[index], self.y_data[index]
+
+    def __len__(self):
+        return self.len
+
 def load_data_dir(data_dir, device, is_scale=True):
     data_list = []
     if not os.path.exists(data_dir):
@@ -153,3 +172,17 @@ def load_train_data(data_dir, valid_ratio, batch_size, device):
 
     return train_loader, valid_loader, full_dataset.input_scaler, full_dataset.output_scaler, full_dataset.input_dim, full_dataset.output_dim
 
+
+def load_teacher_train_data(teacherModel, input_scaler, output_scaler, sample_num, batch_size, device):
+    input_mat, output_mat = teacherModel.random_model_sampling(sample_num)
+    input_mat = input_scaler.transform(input_mat)
+    output_mat = output_scaler.transform(output_mat)
+    train_dataset = NumpyDataSet(input_mat, output_mat, device)
+
+    train_loader = DataLoader(train_dataset,
+                              batch_size=batch_size,
+                              num_workers=0,
+                              shuffle=True
+                              )
+
+    return train_loader

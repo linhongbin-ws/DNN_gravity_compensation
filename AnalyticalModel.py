@@ -1,5 +1,10 @@
 import numpy as np
 from math import cos, sin
+from torch.utils.data import Dataset
+import torch
+from sklearn import preprocessing
+
+
 class MTM_CAD():
     def __init__(self):
         self.g = 9.81
@@ -54,6 +59,9 @@ class MTM_CAD():
         param_vec[13-1, 0] = E5
         param_vec[14-1, 0] = drift5
         self.param_vec = param_vec
+        self.jnt_upper_limit =  np.radians(np.array([45, 34, 190, 175, 40]))
+        self.jnt_lower_limit = np.radians(np.array([-14, -34, -80, -85, -40]))
+
     def predict(self, input_mat):
         output_mat = np.zeros((input_mat.shape[0], 5))
         for i in range(input_mat.shape[0]):
@@ -79,6 +87,8 @@ class MTM_CAD():
                   [0, 0, 0, 0, 0, g * (cos(q2) * cos(q6) * sin(q3) * sin(q4) + cos(q3) * cos(q6) * sin(q2) * sin(q4) + cos(q2) * cos(q3) * sin(q5) * sin(q6) - sin(q2) * sin(q3) * sin(q5) * sin(q6) + cos(q2) * cos(q4) * cos(q5) * sin(q3) * sin(q6) + cos(q3) * cos(q4) * cos(q5) * sin(q2) * sin(q6)), 0, 0, 0, g * (cos(q2) * cos(q3) * cos(q6) * sin(q5) - cos(q2) * sin(q3) * sin(q4) * sin(q6) - cos(q3) * sin(q2) * sin(q4) * sin(q6) - cos(q6) * sin(q2) * sin(q3) * sin(q5) + cos(q2) * cos(q4) * cos(q5) * cos(q6) * sin(q3) + cos(q3) * cos(q4) * cos(q5) * cos(q6) * sin(q2)), 0, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         return R_mat
+
+
 
 
 class MTM_MLSE4POL():
@@ -155,7 +165,8 @@ class MTM_MLSE4POL():
 -0.0100,
 0.0034,
 0.0097]).reshape((70,1))
-
+        self.jnt_upper_limit =  np.radians(np.array([45, 34, 190, 175, 40]))
+        self.jnt_lower_limit = np.radians(np.array([-14, -34, -80, -85, -40]))
     def regressor_pos(self, q1, q2, q3, q4, q5, q6):
             g = self.g
             R_mat = [[         0,         0,                                     0,                                       0,                                                     0,                                                     0,                                                                                                                             0,                                                                                                                             0,                                                                                                                                                                                                                                     0,                                                                                                                                                                                                                                     0, 1, q1, q1**2, q1**3, q1**4, 0,  0,    0,    0,    0, 0,  0,    0,    0,    0, 0,  0,    0,    0,    0, 0,  0,    0,    0,    0, 0,  0,    0,    0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -192,3 +203,12 @@ class MTM_MLSE4POL():
             tor = R_mat.dot(self.param_vec).reshape(7)
             output_mat[i,:] = tor[1:-1]
         return output_mat
+
+    def random_model_sampling(self, sample_num):
+        input_mat = np.zeros((sample_num, 5))
+        for i in range(sample_num):
+            rand_arr = np.random.rand(5)
+            input_mat[i,:] = rand_arr*(self.jnt_upper_limit-self.jnt_lower_limit) + self.jnt_lower_limit
+        output_mat = self.predict(input_mat)
+
+        return input_mat, output_mat
