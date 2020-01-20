@@ -180,3 +180,32 @@ class SigmoidNet(torch.nn.Module):
         h = torch.sigmoid(h)
         y_pred = self._output_linear(h)
         return y_pred
+
+
+class DeLaN_Gravity(torch.nn.Module):
+    def __init__(self, DOF, K_LayerList, D_LayerList, K_VecNum):
+        super(DeLaN_Gravity, self).__init__()
+        self.act_func = torch.nn.ReLU()
+        numList = [DOF]
+        numList.append(K_LayerList)
+        self.K_Linears = torch.nn.ModuleList([torch.nn.Linear(numList[i], numList[i + 1]) for i in range(len(numList) - 1)])
+        numList = [K_LayerList[-1]]
+        numList.append(D_LayerList)
+        self.D_Linears = torch.nn.ModuleList([torch.nn.Linear(numList[i], numList[i + 1]) for i in range(len(numList) - 1)])
+
+        self.K_AdaptLinear = torch.nn.Linear(K_LayerList[-1], K_VecNum)
+
+        self.out_linear = torch.nn.Linear(D_LayerList[-1], DOF)
+
+    def forward(self, x):
+        for linear in self.K_Linears:
+            x = linear(x)
+            x = self.relu(x)
+        K_out = self.K_AdaptLinear(x)
+
+        for linear in self.D_Linears:
+            x = linear(x)
+            x = self.relu(x)
+        D_out = self.out_linear(x)
+
+        return D_out, K_out
