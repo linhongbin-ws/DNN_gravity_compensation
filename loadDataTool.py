@@ -173,14 +173,31 @@ def load_train_data(data_dir, valid_ratio, batch_size, device):
     return train_loader, valid_loader, full_dataset.input_scaler, full_dataset.output_scaler, full_dataset.input_dim, full_dataset.output_dim
 
 
-def load_teacher_train_data(teacherModel, sample_num, batch_size, device, input_scaler=None, output_scaler=None, is_inputScale = False, is_outputScale = False):
+def load_teacher_train_data(teacherModel, sample_num, batch_size, device, input_scaler=None, output_scaler=None, is_inputScale = False, is_outputScale = False, train_ratio=1):
     input_mat, output_mat, input_scaler, output_scaler = teacherModel.random_model_sampling(sample_num, input_scaler, output_scaler,  is_inputScale, is_outputScale)
-    train_dataset = NumpyDataSet(input_mat, output_mat, device)
+    dataset = NumpyDataSet(input_mat, output_mat, device)
+    if train_ratio==1:
+        train_loader = DataLoader(dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True
+                                  )
+        valid_loader = None
+    else:
+        train_size = int(dataset.__len__() * train_ratio)
+        test_size = dataset.__len__() - train_size
+        train_dataset, validate_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+        train_loader = DataLoader(train_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True
+                                  )
+        valid_loader = DataLoader(validate_dataset,
+                                  batch_size=batch_size,
+                                  num_workers=0,
+                                  shuffle=True)
 
-    train_loader = DataLoader(train_dataset,
-                              batch_size=batch_size,
-                              num_workers=0,
-                              shuffle=True
-                              )
 
-    return train_loader, input_scaler, output_scaler
+
+
+    return train_loader, valid_loader, input_scaler, output_scaler
