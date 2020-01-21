@@ -182,9 +182,9 @@ class SigmoidNet(torch.nn.Module):
         return y_pred
 
 
-class KDNet(torch.nn.Module):
+class MultiHd_KDNet(torch.nn.Module):
     def __init__(self, DOF, K_VecNum, Com_LayerList, K_LayerList, D_LayerList):
-        super(KDNet, self).__init__()
+        super(MultiHd_KDNet, self).__init__()
         self.act_func = torch.nn.ReLU()
         numList = [DOF]
         numList.extend(Com_LayerList)
@@ -220,3 +220,36 @@ class KDNet(torch.nn.Module):
                 d = self.act_func(d)
 
         return d, k
+
+
+class SingleHd_KDNet(torch.nn.Module):
+    def __init__(self, DOF, K_LayerList, D_LayerList, K_VecNum):
+        super(SingleHd_KDNet, self).__init__()
+        self.act_func = torch.nn.ReLU()
+
+        numList = [DOF]
+        numList.extend(K_LayerList)
+        numList.append(K_VecNum)
+        self.K_Linears = torch.nn.ModuleList([torch.nn.Linear(numList[i], numList[i + 1]) for i in range(len(numList) - 1)])
+
+        numList = [K_VecNum]
+        numList.extend(D_LayerList)
+        numList.append(DOF)
+        self.D_Linears = torch.nn.ModuleList([torch.nn.Linear(numList[i], numList[i + 1]) for i in range(len(numList) - 1)])
+
+
+    def forward(self, x):
+        k = x
+        for i in range(len(self.K_Linears)):
+            k = self.K_Linears[i](k)
+            if i is len(self.K_Linears)-1:
+                k_out = k
+            k = self.act_func(k)
+
+        d = k
+        for i in range(len(self.D_Linears)):
+            d = self.D_Linears[i](d)
+            if i is not len(self.D_Linears)-1:
+                d = self.act_func(d)
+        d_out = d
+        return d_out, k_out

@@ -43,7 +43,7 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     if teacherModelType == 'MTM_MLSE4POL':
         teacherModel = MTM_MLSE4POL()
 
-    Teacher_trainLoader, _, _ = load_teacher_train_data(teacherModel, teacher_sample_num, batch_size, device,  input_scaler, output_scaler)
+    Teacher_trainLoader, _, _, _ = load_teacher_train_data(teacherModel, teacher_sample_num, batch_size, device,  input_scaler, output_scaler)
 
     # create train_loader from teacher model
 
