@@ -6,6 +6,8 @@ import numpy as np
 def predict(model, input_mat, input_scaler, output_scaler):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
     target_norm_hat = model(feature_norm)
+    if  isinstance(target_norm_hat, tuple):
+        target_norm_hat = target_norm_hat[0]
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
@@ -65,6 +67,8 @@ def evaluate_rms(model, loss_fn, test_data_path, input_scaler, output_scaler, de
 
 
     target_norm_hat = model(feature_norm)
+    if  isinstance(target_norm_hat, tuple):
+        target_norm_hat = target_norm_hat[0]
 
 
     loss = loss_fn(target_norm_hat, target_norm)

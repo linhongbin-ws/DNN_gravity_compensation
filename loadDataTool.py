@@ -174,7 +174,7 @@ def load_train_data(data_dir, valid_ratio, batch_size, device):
 
 
 def load_teacher_train_data(teacherModel, sample_num, batch_size, device, input_scaler=None, output_scaler=None, is_inputScale = False, is_outputScale = False):
-    input_mat, output_mat = teacherModel.random_model_sampling(sample_num, input_scaler, output_scaler,  is_inputScale, is_outputScale)
+    input_mat, output_mat, input_scaler, output_scaler = teacherModel.random_model_sampling(sample_num, input_scaler, output_scaler,  is_inputScale, is_outputScale)
     train_dataset = NumpyDataSet(input_mat, output_mat, device)
 
     train_loader = DataLoader(train_dataset,

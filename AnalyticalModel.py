@@ -93,7 +93,7 @@ class MTM_FK():
         self.jnt_upper_limit =  np.radians(np.array([45, 34, 190, 175, 40]))
         self.jnt_lower_limit = np.radians(np.array([-14, -34, -80, -85, -40]))
 
-    def fk_vec(self, q1,q2,q3,q4,q5,q6):
+    def fk_vec(self, q2,q3,q4,q5,q6):
         cm2_x = -0.38
         cm2_y = 0.00
         cm2_z = 0.00
@@ -137,10 +137,8 @@ class MTM_FK():
         cm5_parallel_y = 0
         cm5_parallel_z = 0
 
-        fk_vec = np.array([cm1_x * sin(q1) - cm1_z * cos(q1),
-        - cm1_x * cos(q1) - cm1_z * sin(q1),
-        cm1_y,
-L2 * sin(q1) * sin(q2) - cm2_z * cos(q1) + cm2_y * cos(q2) * sin(q1) + cm2_x * sin(q1) * sin(q2),
+        q1 = 0
+        fk_vec = np.array([L2 * sin(q1) * sin(q2) - cm2_z * cos(q1) + cm2_y * cos(q2) * sin(q1) + cm2_x * sin(q1) * sin(q2),
 - cm2_z * sin(q1) - L2 * cos(q1) * sin(q2) - cm2_y * cos(q1) * cos(q2) - cm2_x * cos(q1) * sin(q2),
 cm2_y * sin(q2) - cm2_x * cos(q2) - L2 * cos(q2),
 cm3_y * cos(q1) + L2 * sin(q1) * sin(q2) + L3 * cos(q2) * cos(q3) * sin(q1) + cm3_x * cos(q2) * cos(q3) * sin(q1) - L3 * sin(q1) * sin(q2) * sin(q3) - cm3_z * cos(q2) * sin(q1) * sin(q3) - cm3_z * cos(q3) * sin(q1) * sin(q2) - cm3_x * sin(q1) * sin(q2) * sin(q3),
@@ -165,21 +163,21 @@ L3_parallel * sin(q2 + q3) + cm5_parallel_x * cos(q2 + q3) - cm5_parallel_y * si
 
 
     def predict(self, input_mat):
-        output_mat = np.zeros((input_mat.shape[0], 24))
+        output_mat = np.zeros((input_mat.shape[0], 21))
         for i in range(input_mat.shape[0]):
-            q1 = input_mat[i, 0]
-            q2 = input_mat[i,1]
-            q3 = input_mat[i,2]
-            q4 = input_mat[i,3]
-            q5 = input_mat[i,4]
-            q6 = input_mat[i,5]
-            output_mat[i,:] = self.fk_vec(q1,q2,q3,q4,q5,q6)
+            q2 = input_mat[i,0]
+            q3 = input_mat[i,1]
+            q4 = input_mat[i,2]
+            q5 = input_mat[i,3]
+            q6 = input_mat[i,4]
+            output_mat[i,:] = self.fk_vec(q2,q3,q4,q5,q6)
         return output_mat
 
     def random_model_sampling(self, sample_num, input_scaler=None, output_scaler=None, is_inputScale = False, is_outputScale = False):
-        input_mat = np.zeros((sample_num, 5))
+        inputDim = 5
+        input_mat = np.zeros((sample_num, inputDim))
         for i in range(sample_num):
-            rand_arr = np.random.rand(5)
+            rand_arr = np.random.rand(inputDim)
             input_mat[i,:] = rand_arr*(self.jnt_upper_limit-self.jnt_lower_limit) + self.jnt_lower_limit
         output_mat = self.predict(input_mat)
 
@@ -193,7 +191,7 @@ L3_parallel * sin(q2 + q3) + cm5_parallel_x * cos(q2 + q3) - cm5_parallel_y * si
             output_mat = output_scaler.transform(output_mat)
         elif is_outputScale:
             output_scaler = preprocessing.StandardScaler().fit(output_mat)
-            output_mat = output_scaler.transform(input_mat)
+            output_mat = output_scaler.transform(output_mat)
 
         return input_mat, output_mat, input_scaler, output_scaler
 

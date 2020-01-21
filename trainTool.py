@@ -325,3 +325,90 @@ def KDtrain(model, train_loader, valid_loader, Teacher_trainLoader, optimizer, l
     return model
 
 
+# Phisical Hint Learning. It required a teacher and middle-layer teacher model
+def PHLtrain(model, train_loader, valid_loader, Teacher_trainLoader, Mid_Teacher_trainLoader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, initLamda, endLamda, decaySteps, is_plot=True):
+    avg_train_losses = []  # to track the average training loss per epoch as the model trains
+    avg_valid_losses = []  # to track the average validation loss per epoch as the model trains
+    lamda_arr_1 = np.linspace(initLamda,endLamda,  num=decaySteps)
+    lamda_arr_2 = np.linspace(initLamda, endLamda, num=decaySteps)
+    if decaySteps<max_training_epoch:
+        lamda_arr_1 = np.concatenate((lamda_arr_1, endLamda*np.ones(max_training_epoch-decaySteps)))
+    if decaySteps<max_training_epoch:
+        lamda_arr_2 = np.concatenate((lamda_arr_2, endLamda*np.ones(max_training_epoch-decaySteps)))
+    for t in range(max_training_epoch):
+        train_losses = []
+        valid_losses = []
+        # calculate loss for
+        for feature, target in train_loader:
+            target_hat, _ = model(feature)
+            loss = loss_fn(target_hat, target)
+            optimizer.zero_grad()  # clear gradients for next train
+            loss.backward(retain_graph=True)  # backpropagation, compute gradients
+            optimizer.step()  # apply gradients
+            train_losses.append(loss.item())
+        for feature, target in Teacher_trainLoader:
+            target_hat, _ = model(feature)
+            loss = loss_fn(target_hat, target)
+            loss = loss * lamda_arr_1[t]
+            optimizer.zero_grad()  # clear gradients for next train
+            loss.backward(retain_graph=True)  # backpropagation, compute gradients
+            optimizer.step()  # apply gradients
+            train_losses.append(loss.item())
+
+        for feature, target in Mid_Teacher_trainLoader:
+            _, target_hat_mid = model(feature)
+            loss = loss_fn(target_hat_mid, target)
+            loss = loss * lamda_arr_2[t]
+            optimizer.zero_grad()  # clear gradients for next train
+            loss.backward(retain_graph=True)  # backpropagation, compute gradients
+            optimizer.step()  # apply gradients
+            train_losses.append(loss.item())
+
+        for feature, target in valid_loader:
+            # forward pass: compute predicted outputs by passing inputs to the model
+            target_hat, _ = model(feature)
+            loss = loss_fn(target_hat, target)
+            valid_losses.append(loss.item())
+
+        train_loss = np.average(train_losses)
+        valid_loss = np.average(valid_losses)
+        avg_train_losses.append(train_loss)
+        avg_valid_losses.append(valid_loss)
+        print('Epoch', t, ': Train Loss is ', train_loss, 'Validate Loss is', valid_loss)
+
+        if valid_loss<=goal_loss:
+            print("Reach goal loss, valid_loss=", valid_loss,'< goal loss=', goal_loss)
+            break
+        early_stopping(valid_loss, model)
+        if early_stopping.early_stop:
+            print("Early stopping at Epoch")
+            # update the model with checkpoint
+            break
+
+
+    model, _, _ = load_model('.', 'checkpoint', model)
+    remove('checkpoint.pt')
+
+    ### plot the train loss and validate loss curves
+    if is_plot:
+        fig = plt.figure(figsize=(10, 8))
+        plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, label='Training Loss')
+        plt.plot(range(1, len(avg_valid_losses) + 1), avg_valid_losses, label='Validation Loss')
+
+        # find position of lowest validation loss
+        minposs = avg_valid_losses.index(min(avg_valid_losses)) + 1
+        plt.axvline(minposs, linestyle='--', color='r', label='Early Stopping Checkpoint')
+
+        plt.xlabel('epochs')
+        plt.ylabel('loss')
+        plt.ylim(0, max(max(avg_valid_losses), max(avg_valid_losses)))  # consistent scale
+        plt.xlim(0, len(avg_train_losses) + 1)  # consistent scale
+        plt.grid(True)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        # fig.savefig(pjoin('model','LogNet',model_file_name+'.png'), bbox_inches='tight')
+
+    return model
+
+
