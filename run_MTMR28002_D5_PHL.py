@@ -50,7 +50,7 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     if Mid_teacherModelType == 'MTM_FK':
         Mid_teacherModel = MTM_FK()
 
-    Mid_Teacher_trainLoader, _, _, _ = load_teacher_train_data(Mid_teacherModel, teacher_sample_num, batch_size, device, input_scaler=input_scaler)
+    Mid_Teacher_trainLoader, Mid_Teacher_validLoader, _, _ = load_teacher_train_data(Mid_teacherModel, teacher_sample_num, batch_size, device, input_scaler=input_scaler, is_outputScale=True, train_ratio=0.8)
 
     # create train_loader from teacher model
 
@@ -60,7 +60,8 @@ def loop_func(train_data_path, valid_data_path, test_data_path, use_net):
     early_stopping = EarlyStopping(patience=earlyStop_patience, verbose=False)
 
     ### Train model
-    model = PHLtrain(model, train_loader, valid_loader, Teacher_trainLoader, Mid_Teacher_trainLoader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, initLamda, endLamda, decaySteps, is_plot=False)
+
+    model = PHLtrain(model, train_loader, valid_loader, Teacher_trainLoader, Mid_Teacher_trainLoader, Mid_Teacher_validLoader, optimizer, loss_fn, early_stopping, max_training_epoch, goal_loss, initLamda, endLamda, decaySteps, is_plot=False)
 
     ### Get the predict output from test data and save to Matlab file
     train_dataset = load_data_dir(join(train_data_path,'data'), device='cpu', is_scale=False)
@@ -114,4 +115,4 @@ train_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "dua
 valid_data_path = join("data", "MTMR_28002", "real", "uniform",  "N4", 'D5', "dual")
 test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
 # loop_func(train_data_path, valid_data_path, test_data_path, 'SinNet')
-loop_func(train_data_path, valid_data_path, test_data_path, 'SingleHd_KDNet')
+loop_func(train_data_path, valid_data_path, test_data_path, 'KDNet_Serial')

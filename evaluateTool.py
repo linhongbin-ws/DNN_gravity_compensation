@@ -16,6 +16,8 @@ def predict(model, input_mat, input_scaler, output_scaler):
 def predictNP(model, input_mat, input_scaler, output_scaler):
     feature_norm = torch.from_numpy(input_scaler.transform(input_mat)).to('cpu').float()
     target_norm_hat = model(feature_norm)
+    if  isinstance(target_norm_hat, tuple):
+        target_norm_hat = target_norm_hat[0]
     target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     return target_hat_mat
 

@@ -45,12 +45,12 @@ def get_model(robot, use_net, D, device='cpu'):
             # w_list = [1, 1, 3, 3, 3]
             # w_vec = torch.from_numpy(np.array(w_list).T).to(device).float()
             model = LagrangeNet(base_model)
-        elif use_net == 'MultiHd_KDNet':
+        elif use_net == 'KDNet_Parallel':
             DOF, K_VecNum, Com_LayerList, K_LayerList, D_LayerList = 5, 21, [20,20], [20],[20,10]
-            model = MultiHd_KDNet(DOF, K_VecNum, Com_LayerList, K_LayerList, D_LayerList).to(device)
-        elif use_net == 'SingleHd_KDNet':
+            model = KDNet_Parallel(DOF, K_VecNum, Com_LayerList, K_LayerList, D_LayerList).to(device)
+        elif use_net == 'KDNet_Serial':
             DOF, K_LayerList, D_LayerList, K_VecNum = 5, [20], [20, 20], 21
-            model = SingleHd_KDNet(DOF, K_LayerList, D_LayerList, K_VecNum).to(device)
+            model = KDNet_Serial(DOF, K_LayerList, D_LayerList, K_VecNum).to(device)
 
         else:
             raise Exception(use_net + 'is not support')

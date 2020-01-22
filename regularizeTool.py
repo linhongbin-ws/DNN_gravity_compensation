@@ -51,3 +51,9 @@ class EarlyStopping:
         # else:
         #     torch.save(model.state_dict(), 'checkpoint.pt')
         self.val_loss_min = val_loss
+
+    def reset(self):
+        self.counter = 0
+        self.best_score = None
+        self.early_stop = False
+        self.val_loss_min = np.Inf

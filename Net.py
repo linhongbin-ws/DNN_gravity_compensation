@@ -182,9 +182,9 @@ class SigmoidNet(torch.nn.Module):
         return y_pred
 
 
-class MultiHd_KDNet(torch.nn.Module):
+class KDNet_Parallel(torch.nn.Module):
     def __init__(self, DOF, K_VecNum, Com_LayerList, K_LayerList, D_LayerList):
-        super(MultiHd_KDNet, self).__init__()
+        super(KDNet_Parallel, self).__init__()
         self.act_func = torch.nn.ReLU()
         numList = [DOF]
         numList.extend(Com_LayerList)
@@ -222,9 +222,9 @@ class MultiHd_KDNet(torch.nn.Module):
         return d, k
 
 
-class SingleHd_KDNet(torch.nn.Module):
+class KDNet_Serial(torch.nn.Module):
     def __init__(self, DOF, K_LayerList, D_LayerList, K_VecNum):
-        super(SingleHd_KDNet, self).__init__()
+        super(KDNet_Serial, self).__init__()
         self.act_func = torch.nn.ReLU()
 
         numList = [DOF]
@@ -253,3 +253,31 @@ class SingleHd_KDNet(torch.nn.Module):
                 d = self.act_func(d)
         d_out = d
         return d_out, k_out
+
+    def freeze_KLayers(self):
+        for linear in self.K_Linears:
+            for param in linear.parameters():
+                param.requires_grad = False
+
+    def reset_DLayers(self):
+        for linear in self.D_Linears:
+            torch.nn.init.xavier_uniform_(linear.weight)
+            linear.bias.data.fill_(0.01)
+
+
+    def reset_KLastLayer(self):
+        torch.nn.init.xavier_uniform_(self.K_Linears[-1].weight)
+        self.K_Linears[-1].bias.data.fill_(0.01)
+
+    def reset_after_pretrain(self):
+        self.reset_DLayers()
+        self.reset_KLastLayer()
+        for i in range(len(self.K_Linears)):
+            if i is not len(self.K_Linears)-1:
+                for param in self.K_Linears[i].parameters():
+                    param.requires_grad = False
+
+    def unfreeze_KLayers(self):
+        for linear in self.K_Linears:
+            for param in linear.parameters():
+                param.requires_grad = True
