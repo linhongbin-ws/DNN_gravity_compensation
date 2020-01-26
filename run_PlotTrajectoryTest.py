@@ -69,12 +69,12 @@ test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler
 legend_list.append('ReLuNet with KD from MLSE4POL')
 
 # get predict Serial-type KDNet
-use_net = 'KDNet_Serial'
+use_net = 'Two_ReLuNet'
 device = 'cpu'
 D = 5
 load_model_path = join(train_data_path, "result", "model")
 DNN_model = get_model('MTM', use_net, D, device=device)
-DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_PHL_MLSE4POL', DNN_model)
+DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_DT_MLSE4POL', DNN_model)
 test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler, DNN_OScaler))
 legend_list.append('Serial-type KDNet with MLSE4POL')
 

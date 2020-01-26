@@ -51,7 +51,11 @@ def get_model(robot, use_net, D, device='cpu'):
         elif use_net == 'KDNet_Serial':
             DOF, K_LayerList, D_LayerList, K_VecNum = 5, [20], [20, 20], 21
             model = KDNet_Serial(DOF, K_LayerList, D_LayerList, K_VecNum).to(device)
-
+        elif use_net == 'Two_ReLuNet':
+            K_Vec_DIM = 21
+            model1 = ReLuNet(D, [30,30,30], K_Vec_DIM).to(device)
+            model2 = ReLuNet(K_Vec_DIM, [30, 30, 30], D).to(device)
+            model = torch.nn.Sequential(model1, model2)
         else:
             raise Exception(use_net + 'is not support')
     ### define net for acrobot
