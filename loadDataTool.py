@@ -6,7 +6,7 @@ from sklearn import preprocessing
 import os
 
 class MTMDataset(Dataset):
-    def __init__(self, data_list, device, is_scale=True):
+    def __init__(self, data_list, device, input_scaler=None, output_scaler=None, is_inputScale = True, is_outputScale = True):
         input_mat = []
         output_mat = []
         # load .mat file to numpy
@@ -17,11 +17,21 @@ class MTMDataset(Dataset):
             output_mat = output if len(output_mat)==0 else np.concatenate((output_mat, output), axis=0)
 
         # scale output to zeroscore
-        if is_scale:
+        if is_inputScale:
             self.input_scaler = preprocessing.StandardScaler().fit(input_mat)
-            self.output_scaler = preprocessing.StandardScaler().fit(output_mat)
             input_mat = self.input_scaler.transform(input_mat)
+        else:
+            self.input_scaler = input_scaler
+            if input_scaler is not None:
+                input_mat = self.input_scaler.transform(input_mat)
+
+        if is_outputScale:
+            self.output_scaler = preprocessing.StandardScaler().fit(output_mat)
             output_mat = self.output_scaler.transform(output_mat)
+        else:
+            self.output_scaler = output_scaler
+            if output_scaler is not None:
+                output_mat = self.output_scaler.transform(output_mat)
 
         # numpy to torch tensor
         self.x_data = torch.from_numpy(input_mat).to(device).float()
@@ -59,7 +69,7 @@ class NumpyDataSet(Dataset):
     def __len__(self):
         return self.len
 
-def load_data_dir(data_dir, device, is_scale=True):
+def load_data_dir(data_dir, device, input_scaler=None, output_scaler=None, is_inputScale = True, is_outputScale = True):
     data_list = []
     if not os.path.exists(data_dir):
         raise Exception('cannot find directory: {}'.format(os.getcwd()+data_dir))
@@ -68,12 +78,13 @@ def load_data_dir(data_dir, device, is_scale=True):
             if file.endswith(".mat"):
                 print('Load Data: ', os.path.join(root, file))
                 data_list.append(os.path.join(root, file))
-    full_dataset = MTMDataset(data_list, device=device, is_scale=is_scale)
+    full_dataset = MTMDataset(data_list, device, input_scaler, output_scaler, is_inputScale, is_outputScale)
     return full_dataset
 
-def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None, valid_ratio=0.2,device='cpu'):
+def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None, valid_ratio=0.2,device='cpu',
+                               input_scaler=None, output_scaler=None, is_inputScale = True, is_outputScale = True):
     if valid_data_path == None:
-        full_dataset = load_data_dir(train_data_dir, device)
+        full_dataset = load_data_dir(train_data_dir, device, input_scaler, output_scaler, is_inputScale, is_outputScale)
         train_ratio = 1 - valid_ratio
         train_size = int(full_dataset.__len__() * train_ratio)
         test_size = full_dataset.__len__() - train_size
@@ -91,8 +102,8 @@ def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None,
         output_scaler = full_dataset.output_scaler
 
     else:
-        train_dataset = load_data_dir(train_data_dir, device)
-        valid_dataset = load_data_dir(valid_data_path, device)
+        train_dataset = load_data_dir(train_data_dir, device, input_scaler, output_scaler, is_inputScale, is_outputScale)
+        valid_dataset = load_data_dir(valid_data_path, device, input_scaler, output_scaler, is_inputScale, is_outputScale)
         train_loader = DataLoader(train_dataset,
                                   batch_size=batch_size,
                                   num_workers=0,
@@ -104,6 +115,7 @@ def load_train_N_validate_data(train_data_dir, batch_size, valid_data_path=None,
                                   shuffle=True)
         input_scaler = train_dataset.input_scaler
         output_scaler = train_dataset.output_scaler
+
     return train_loader, valid_loader, input_scaler, output_scaler
 
 def load_train_N_validate_data_list(train_data_dir_list, batch_size, valid_data_path_list=None, valid_ratio=0.2,device='cpu'):

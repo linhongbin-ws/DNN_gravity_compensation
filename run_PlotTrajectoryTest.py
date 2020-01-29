@@ -15,10 +15,11 @@ from AnalyticalModel import *
 
 # define train and test path
 train_data_path = join("data", "MTMR_28002", "real", "uniform", "N5", 'D5', "dual")
-test_data_path = join("data", "MTMR_28002", "real", "random", 'N10','D5')
+test_data_path = join("data", "MTMR_28002", "real", "random", 'N319','D5')
 
 # load Trajectory Test experiment data
-test_dataset = load_data_dir(join(test_data_path, "data"), device='cpu', is_scale=False)
+test_dataset = load_data_dir(join(test_data_path, "data"), device='cpu',input_scaler=None, output_scaler=None,
+                             is_inputScale = False, is_outputScale = False)
 test_input_mat = test_dataset.x_data.numpy()
 test_ouput_mat = test_dataset.y_data.numpy()
 
@@ -69,14 +70,14 @@ test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler
 legend_list.append('ReLuNet with KD from MLSE4POL')
 
 # get predict Serial-type KDNet
-use_net = 'Two_ReLuNet'
+use_net = 'SinInput_ReLUNet'
 device = 'cpu'
 D = 5
 load_model_path = join(train_data_path, "result", "model")
 DNN_model = get_model('MTM', use_net, D, device=device)
-DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_DT_MLSE4POL', DNN_model)
+DNN_model, DNN_IScaler, DNN_OScaler = load_model(load_model_path, use_net+'_KD_MLSE4POL', DNN_model)
 test_output_hat_mat_List.append(predictNP(DNN_model, test_input_mat, DNN_IScaler, DNN_OScaler))
-legend_list.append('Serial-type KDNet with MLSE4POL')
+legend_list.append('SinInput_ReLUNet KD with MLSE4POL')
 
 
 # plot predict error bar figures

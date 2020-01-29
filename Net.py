@@ -281,3 +281,21 @@ class KDNet_Serial(torch.nn.Module):
         for linear in self.K_Linears:
             for param in linear.parameters():
                 param.requires_grad = True
+
+
+class SinInput_ReLUNet(torch.nn.Module):
+    def __init__(self, D_in, H_list, D_out):
+        super(SinInput_ReLUNet, self).__init__()
+        self.relu = torch.nn.ReLU()
+        H_list = [2*D_in] + H_list
+        self.linears = torch.nn.ModuleList([torch.nn.Linear(H_list[i], H_list[i+1]) for i in range(len(H_list)-1)])
+        self.output_layer = torch.nn.Linear(H_list[-1], D_out)
+    def forward(self, x):
+        x_sin = torch.sin(x)
+        x_cos = torch.cos(x)
+        x = torch.cat((x_sin, x_cos), 1)
+        for linear in self.linears:
+            x = linear(x)
+            x = self.relu(x)
+        x = self.output_layer(x)
+        return x

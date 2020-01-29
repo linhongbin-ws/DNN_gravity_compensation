@@ -4,21 +4,38 @@ import numpy as np
 
 
 def predict(model, input_mat, input_scaler, output_scaler):
-    feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
+    if input_scaler is None:
+        feature_norm = input_mat
+    else:
+        feature_norm = torch.from_numpy(input_scaler.transform(input_mat.numpy())).to('cpu').float()
+
     target_norm_hat = model(feature_norm)
     if  isinstance(target_norm_hat, tuple):
         target_norm_hat = target_norm_hat[0]
-    target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+
+    if output_scaler is None:
+        target_hat_mat = target_norm_hat
+    else:
+        target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
     target_hat = torch.from_numpy(target_hat_mat)
     return target_hat
 
 # predict from numpy input to numpy output
 def predictNP(model, input_mat, input_scaler, output_scaler):
-    feature_norm = torch.from_numpy(input_scaler.transform(input_mat)).to('cpu').float()
+    if input_scaler is not None:
+        feature_norm = torch.from_numpy(input_scaler.transform(input_mat)).to('cpu').float()
+    else:
+        feature_norm = torch.from_numpy(input_mat).to('cpu').float()
+
     target_norm_hat = model(feature_norm)
-    if  isinstance(target_norm_hat, tuple):
+    if isinstance(target_norm_hat, tuple):
         target_norm_hat = target_norm_hat[0]
-    target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+
+    if output_scaler is not None:
+        target_hat_mat = output_scaler.inverse_transform(target_norm_hat.detach().numpy())
+    else:
+        target_hat_mat = target_norm_hat.detach().numpy()
+
     return target_hat_mat
 
 def predictList(modelList, input_mat, input_scalerList, output_scalerList):
@@ -58,14 +75,20 @@ def evaluate_rms_list(modelList, test_data_path, input_scalerList, output_scaler
     return abs_rms_vec, rel_rms_vec
 def evaluate_rms(model, loss_fn, test_data_path, input_scaler, output_scaler, device, verbose=True):
     # test model
-    test_dataset = load_data_dir(test_data_path, device=device, is_scale=False)
+    test_dataset = load_data_dir(test_data_path, device=device, input_scaler=None, output_scaler=None, is_inputScale = False, is_outputScale = False)
     feature = test_dataset.x_data
     target = test_dataset.y_data
 
     # scale input data
-    feature_norm = torch.from_numpy(input_scaler.transform(feature.numpy())).to(device).float()
+    if input_scaler is not None:
+        feature_norm = torch.from_numpy(input_scaler.transform(feature.numpy())).to(device).float()
+    else:
+        feature_norm = feature
     # scale output data
-    target_norm = torch.from_numpy(output_scaler.transform(target.numpy())).to(device).float()
+    if output_scaler is not None:
+        target_norm = torch.from_numpy(output_scaler.transform(target.numpy())).to(device).float()
+    else:
+        target_norm = target
 
 
     target_norm_hat = model(feature_norm)
